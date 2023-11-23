@@ -1,10 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Marketplace extends JComponent implements Runnable{
     // STILL NEED TO MAKE SURE THE USER CAN PRESS CANCEL OR RED X BUTTON AT ANY TIME DURING THE PROGRAM
@@ -78,7 +76,7 @@ public class Marketplace extends JComponent implements Runnable{
             try (BufferedReader bfr = new BufferedReader(new FileReader("users.txt"))) {
                 String username = JOptionPane.showInputDialog(null, "Enter your username:");
 
-                String password = JOptionPane.showInputDialog(null, "Enter your passeord:");
+                String password = JOptionPane.showInputDialog(null, "Enter your password:");
                 line = bfr.readLine();
 
                 while (line != null) {
@@ -133,11 +131,21 @@ public class Marketplace extends JComponent implements Runnable{
     }
 
 
+
     public void run() {
         Object user = null;
+        String username = "";
+        String password = "";
+        Font customFont = new Font("Arial", Font.BOLD, 24);
+        JLabel label = new JLabel("Welcome to Marketplace!");
+        label.setFont(customFont);
+        //Image icon = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB_PRE);
+        // IS THERE A WAY TO GET RID OF THE ICON?
+        BufferedImage transparentImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB_PRE);
+        ImageIcon icon = new ImageIcon(transparentImage);
 
-        JOptionPane.showMessageDialog(null, "Welcome to Marketplace!",
-                "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, label, "Marketplace", JOptionPane.INFORMATION_MESSAGE, icon);
+
 
         // Ask the user to choose between logging in or creating an account
         String[] options = {"Login", "Create Account"};
@@ -150,8 +158,8 @@ public class Marketplace extends JComponent implements Runnable{
         if (choice == JOptionPane.YES_OPTION) {
             String userInfo = login();
             String[] userData = userInfo.split(",");
-            String username = userData[0];
-            String password = userData[1];
+            username = userData[0];
+            password = userData[1];
             if (userData[2].equals("Customer")) {
                 user = new Customer(username, password);
                 ShoppingCart shoppingCart = getUserShoppingCart((Customer) user);
@@ -165,8 +173,8 @@ public class Marketplace extends JComponent implements Runnable{
                      JOptionPane.PLAIN_MESSAGE, null, custOrSell, null);
             createUser(userType);
             String[] userData = userInfo.split(",");
-            String username = userData[0];
-            String password = userData[1];
+            username = userData[0];
+            password = userData[1];
             if (userData[2].equals("Customer")) {
                 user = new Customer(username, password);
             } else {
@@ -178,9 +186,20 @@ public class Marketplace extends JComponent implements Runnable{
         if (user instanceof Customer) {
             // customer implementation
         } else {
-            
+            user = new Seller(username, password);
+
+            openSellerFrame(username);
+
         }
 
     }
+    private void openSellerFrame(String username) {
+        SwingUtilities.invokeLater(() -> {
+            SellerFrame sellerFrame = new SellerFrame(username);
+            sellerFrame.setVisible(true);
+            sellerFrame.setLocationRelativeTo(null);
+        });
+    }
+
 
 }
