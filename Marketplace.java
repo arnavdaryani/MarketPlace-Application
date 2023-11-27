@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Marketplace extends JComponent implements Runnable{
     // STILL NEED TO MAKE SURE THE USER CAN PRESS CANCEL OR RED X BUTTON AT ANY TIME DURING THE PROGRAM
@@ -184,6 +185,8 @@ public class Marketplace extends JComponent implements Runnable{
             return;
         }
         if (user instanceof Customer) {
+            user = new Customer(username, password);
+            openCustomerFrame((Customer) user);
             // customer implementation
         } else {
             user = new Seller(username, password);
@@ -200,6 +203,32 @@ public class Marketplace extends JComponent implements Runnable{
             sellerFrame.setLocationRelativeTo(null);
         });
     }
+
+    private void openCustomerFrame(Customer user) {
+        SwingUtilities.invokeLater(() -> {
+            CustomerFrame customerFrame = new CustomerFrame(user);
+            customerFrame.setVisible(true);
+            customerFrame.setLocationRelativeTo(null);
+        });
+    }
+
+    public static ArrayList<Product> readFromFile() {
+        ArrayList<Product> availableProducts = new ArrayList<>();
+        try (BufferedReader bfr = new BufferedReader(new FileReader(new File("products.txt")))) {
+            String line = bfr.readLine();
+            while (line != null) {
+                String[] productInfo = line.split(",");
+                Product product = new Product(productInfo[0], productInfo[1], productInfo[2],
+                        Double.parseDouble(productInfo[3]), Integer.parseInt(productInfo[4]));
+                availableProducts.add(product);
+                line = bfr.readLine();
+            }
+        } catch (IOException e) {
+            System.out.println("No products are currently listed!\n");
+        }
+        return availableProducts;
+    }
+
 
 
 }
