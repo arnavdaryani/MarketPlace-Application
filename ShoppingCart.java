@@ -49,6 +49,19 @@ public class ShoppingCart  {
                     + " = " + product.getPrice()* product.getQuantity());
         }
     }
+    public String displayShoppingCartGUI() {
+        String returned1 = "";
+        if (listOfProducts.isEmpty()) {
+            returned1 = "Empty!";
+            return returned1;
+        }
+        int i = 1;
+        for (Product product : listOfProducts) {
+            returned1 = returned1 + ("[" + i + "] " + product.getProductName() + " -- " + product.getQuantity() + " x " + product.getPrice()
+                    + " = " + product.getPrice()* product.getQuantity()) + ",";
+        }
+        return returned1;
+    }
 
     public String toString() {
         String shoppingCart = "";
@@ -60,4 +73,3 @@ public class ShoppingCart  {
 
 
 }
-
