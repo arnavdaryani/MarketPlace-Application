@@ -169,17 +169,23 @@ public class Marketplace extends JComponent implements Runnable{
                 user = new Seller(username, password);
             }
         } else if (choice == JOptionPane.NO_OPTION) {
-            String[] custOrSell = {"Customer", "Seller"};
-            String userInfo = userType = (String) JOptionPane.showInputDialog(null,"Are you a customer or seller?", "Marketplace",
+          String[] custOrSell = {"Customer", "Seller"};
+            String userType = (String) JOptionPane.showInputDialog(null,"Are you a customer or seller?", "Marketplace",
                      JOptionPane.PLAIN_MESSAGE, null, custOrSell, null);
-            createUser(userType);
+            String userInfo = createUser(userType);
             String[] userData = userInfo.split(",");
-            username = userData[0];
-            password = userData[1];
-            if (userData[2].equals("Customer")) {
-                user = new Customer(username, password);
+            if (userData.length >= 2) {
+                username = userData[0];
+                password = userData[1];
+                if (userData[2].equals("Customer")) {
+                    user = new Customer(username, password);
+                    ShoppingCart shoppingCart = getUserShoppingCart((Customer) user);
+                    user = new Customer(username, password, shoppingCart);
+                } else {
+                    user = new Seller(username, password);
+                }
             } else {
-                user = new Seller(username, password);
+                JOptionPane.showMessageDialog(null, "Invalid user data format.", "Marketplace", JOptionPane.ERROR_MESSAGE);
             }
         } else {
             return;
