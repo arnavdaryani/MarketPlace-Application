@@ -1,6 +1,10 @@
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.io.*;
 import java.util.Arrays;
+import java.util.Scanner;
+
 /**
  * A seller class with seller methods
  *
@@ -12,11 +16,12 @@ import java.util.Arrays;
  *
  */
 
-public class Seller implements Serializable {
+public class Seller extends JComponent implements Serializable {
     private String username;
     private String password;
-    private ArrayList<String> stores;
+    private static ArrayList<String> stores;
     private String fileName;
+
 
     public Seller(String username, String password) {
         this.username = username;
@@ -62,11 +67,18 @@ public class Seller implements Serializable {
      * @param storeName - inputs store name as parameter so seller can
      * choose which store file they would like to create
      */
+//    public static void createStore(String storeName) {
+//        Store store = new Store(storeName);
+//        stores.add(storeName);
+//        //addStoreToSellerFile(storeName, this);
+//        System.out.println("Store created successfully: " + storeName);
+//    }
     public void createStore(String storeName) {
         Store store = new Store(storeName);
         stores.add(storeName);
         //addStoreToSellerFile(storeName, this);
-        System.out.println("Store created successfully: " + storeName);
+        JOptionPane.showMessageDialog(null, "Store created successfully: " + storeName,
+                "Marketplace", JOptionPane.INFORMATION_MESSAGE);
     }
     public void printStores() {
         System.out.println("List of Stores:");
@@ -264,7 +276,169 @@ public class Seller implements Serializable {
             System.out.println("Error occurred while writing store names to file.");
         }
     }
+    public void editProductFile() {
+        try {
+            BufferedReader bfr = new BufferedReader(new FileReader("products.txt"));
+            PrintWriter pw = new PrintWriter(new FileWriter("products.txt"));
 
 
+        } catch (IOException e) {
+
+        }
+    }
+
+//    public static void editProduct(String productName, String storeName) {
+//        File storeFile = new File(storeName + ".txt");
+//        File tempFile = new File("temp.txt");
+//
+//        try (BufferedReader reader = new BufferedReader(new FileReader(storeFile));
+//             PrintWriter writer = new PrintWriter(new FileWriter(tempFile))) {
+//
+//            String line;
+//            while ((line = reader.readLine()) != null) {
+//                String[] productDetails = line.split(",");
+//                if (productDetails[0].equalsIgnoreCase(productName)) {
+//                    // Display current product information
+//                    JOptionPane.showMessageDialog(null, "Current product information: " + line,
+//                            "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+//                    // Allow the user to modify specific attributes
+//                    String newProductDetails = JOptionPane.showInputDialog(null, "Enter new product details separated by commas (name,store name,description,price,quantity):",
+//                            "Marketplace", JOptionPane.QUESTION_MESSAGE);
+//                    String[] details = newProductDetails.split(",");
+//                    String name = details[0];
+//                    String storeNames = details[1];
+//                    String description = details[2];
+//                    double price = Double.parseDouble(details[3]);
+//                    int quantity = Integer.parseInt(details[4]);
+//                    Product newProduct = new Product(name, storeNames, description, price, quantity);
+//                    Marketplace.products.add(newProduct);
+//                     // Update the line with new product details
+//                    writer.println(newProductDetails);
+////                    BufferedReader bfr = new BufferedReader(new FileReader("products.txt"));
+////                    PrintWriter pw = new PrintWriter(new FileWriter("products.txt"));
+////                    String lines;
+////                    try {
+////                        while ((lines = bfr.readLine()) != null) {
+////                            if (lines.contains(name)) {
+////                                pw.println(newProductDetails);
+////                            }
+////                        }
+////                    } catch (IOException e) {
+////                        JOptionPane.showMessageDialog(null, "Error this product does not exist");
+////
+////                    }
+//                    try {
+//                        BufferedReader bfr = new BufferedReader(new FileReader("products.txt"));
+//                        PrintWriter pw = new PrintWriter(new FileWriter("tempProducts.txt", true)); // Use a temporary file
+//
+//                        String lines;
+//                        while ((lines = bfr.readLine()) != null) {
+//                            if (lines.contains(name)) {
+//                                pw.println(newProductDetails);
+//                            } else {
+//                                pw.println(lines);
+//                            }
+//                        }
+//
+//                        // Replace the original file with the temporary file
+//                        if (new File("tempProducts.txt").renameTo(new File("products.txt"))) {
+//                            System.out.println("Products file updated successfully");
+//                        } else {
+//                            System.out.println("Failed to update products file");
+//                        }
+//
+//                    } catch (IOException e) {
+//                        JOptionPane.showMessageDialog(null, "Error occurred while updating the products file.",
+//                                "Marketplace", JOptionPane.ERROR_MESSAGE);
+//                    }
+//                    JOptionPane.showMessageDialog(null, "Product information updated successfully!",
+//                            "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+//                } else {
+//                    writer.println(line);
+//                }
+//            }
+//        } catch (IOException e) {
+//            JOptionPane.showMessageDialog(null, "Error occurred while editing the product.",
+//                    "Marketplace", JOptionPane.ERROR_MESSAGE);
+//        }
+//
+//        // Replace the original file with the temporary file
+//        if (storeFile.delete() && tempFile.renameTo(storeFile)) {
+//            JOptionPane.showMessageDialog(null, "Store file updated successfully!",
+//                    "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+//        } else {
+//            JOptionPane.showMessageDialog(null, "Error occurred while updating the store file.",
+//                    "Marketplace", JOptionPane.ERROR_MESSAGE);
+//        }
+//
+//    }
+
+    public static void editProduct(String productName, String storeName) {
+        File storeFile = new File(storeName + ".txt");
+        File tempFile = new File("temp.txt");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(storeFile));
+             PrintWriter writer = new PrintWriter(new FileWriter(tempFile))) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] productDetails = line.split(",");
+                if (productDetails[0].equalsIgnoreCase(productName)) {
+                    // Display current product information
+                    JOptionPane.showMessageDialog(null, "Current product information: " + line,
+                            "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+
+                    // Allow the user to modify specific attributes
+                    String newProductDetails = JOptionPane.showInputDialog(null, "Enter new product details separated by commas (name,store name,description,price,quantity):",
+                            "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                    String[] details = newProductDetails.split(",");
+                    String name = details[0];
+
+                    // Update the line with new product details in the store file
+                    writer.println(newProductDetails);
+
+                    // Update the products.txt file
+                    try (BufferedReader bfr = new BufferedReader(new FileReader("products.txt"));
+                         PrintWriter pw = new PrintWriter(new FileWriter("tempProducts.txt", true))) {
+
+                        String lines;
+                        while ((lines = bfr.readLine()) != null) {
+                            if (lines.contains(name)) {
+                                pw.println(newProductDetails);
+                            } else {
+                                pw.println(lines);
+                            }
+                        }
+
+                        // Replace the original file with the temporary file
+                        if (new File("tempProducts.txt").renameTo(new File("products.txt"))) {
+                            System.out.println("Products file updated successfully");
+                        } else {
+                            System.out.println("Failed to update products file");
+                        }
+
+                    } catch (IOException e) {
+                        JOptionPane.showMessageDialog(null, "Error occurred while updating the products file.",
+                                "Marketplace", JOptionPane.ERROR_MESSAGE);
+                    }
+
+                    JOptionPane.showMessageDialog(null, "Product information updated successfully!",
+                            "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    writer.println(line);
+                }
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Error occurred while editing the product.",
+                    "Marketplace", JOptionPane.ERROR_MESSAGE);
+        }
+
+        // Replace the original file with the temporary file for both store and products
+        if (storeFile.delete() && tempFile.renameTo(storeFile)) {
+            System.out.println("Store file updated successfully");
+        } else {
+            System.out.println("Failed to update store file");
+        }
+    }
 }
 
