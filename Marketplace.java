@@ -142,6 +142,33 @@ public class Marketplace extends JComponent implements Runnable{
             e.printStackTrace();
         }
     }
+    public static double shoppingCartTotal(Customer customer) {
+        ShoppingCart sc = customer.getShoppingCart();
+        double total = 0;
+        if (sc.getListOfProducts().isEmpty()) {
+            return total;
+        }
+        for (Product p : sc.getListOfProducts()) {
+            total += p.getQuantity() * p.getPrice();
+        }
+        return total;
+    }
+    public static ArrayList<Product> readFromFile() {
+        ArrayList<Product> availableProducts = new ArrayList<>();
+        try (BufferedReader bfr = new BufferedReader(new FileReader(p))) {
+            String line = bfr.readLine();
+            while (line != null) {
+                String[] productInfo = line.split(",");
+                Product product = new Product(productInfo[0], productInfo[1], productInfo[2],
+                        Double.parseDouble(productInfo[3]), Integer.parseInt(productInfo[4]));
+                availableProducts.add(product);
+                line = bfr.readLine();
+            }
+        } catch (IOException e) {
+            System.out.println("No products are currently listed!\n");
+        }
+        return availableProducts;
+    }
     public static void addProductToStore(String storeName, Seller seller) {
         try (PrintWriter pw = new PrintWriter(new FileWriter(storeName + ".txt", true), true)) {
             String productDetails = JOptionPane.showInputDialog(null, "Enter product details separated by commas (name,store name,description,price,quantity):",
@@ -174,6 +201,7 @@ public class Marketplace extends JComponent implements Runnable{
             e.printStackTrace();
         }
     }
+
 
 
 
@@ -236,6 +264,94 @@ public class Marketplace extends JComponent implements Runnable{
         }
         if (user instanceof Customer) {
             // customer implementation
+            boolean continueNow = true;
+            while (continueNow) {
+                user = new Customer(username, password);
+                String[] customerMenu = {"Search for a product", "Sort products by price",
+                        "Sort products by quantity available", "View shopping cart",
+                        "View product page to purchase", "View purchase history",
+                        "Export purchase history", "Logout and Exit"};
+                String selection = (String) JOptionPane.showInputDialog(null, "Pick Below", "Marketplace",
+                        JOptionPane.PLAIN_MESSAGE, null, customerMenu, null);
+                switch (selection) {
+                    case "Search for a product":
+                        break;
+                    case "Sort products by price":
+                        products = readFromFile();
+                        products.sort(new SortByPrice());
+                        //ArrayList<Product> products = user.getShoppingCart().getListOfProducts();
+                        String[] newList = new String[products.size()];
+                        int i = 0;
+                        for (Product prod : products) {
+                            newList[i] = prod.toString();
+                            i++;
+                        }
+                        String new1 = (String) JOptionPane.showInputDialog(null, "Sorted by Price", "Marketplace",
+                                JOptionPane.PLAIN_MESSAGE, null, newList, null);
+                        break;
+                    case "Sort products by quantity available":
+                        products = readFromFile();
+                        products.sort(new SortByQuantity());
+                        String[] newList1 = new String[products.size()];
+                        int ii = 0;
+                        for (Product prod : products) {
+                            newList1[ii] = prod.toString();
+                            ii++;
+                        }
+                        String new2 = (String) JOptionPane.showInputDialog(null, "Sorted by Quantity Available", "Marketplace",
+                                JOptionPane.PLAIN_MESSAGE, null, newList1, null);
+                        break;
+                    case "View shopping cart":
+                        String productsListed = ((Customer) user).getShoppingCart().displayShoppingCartAgain();
+                        String productString = "";
+                        String[] values1 = new String[products.size()];
+                        int iiii = 0;
+                        for (Product iii : products) {
+                            productString = iii.getProductName();
+                            values1[iiii] = productString;
+                            iiii++;
+                        }
+                        String[] values2 = {"Checkout $" + shoppingCartTotal((Customer) user), "Remove Item", "Go Back"};
+                        String item = (String) JOptionPane.showInputDialog(null,
+                                "The Shopping Cart", "",
+                                JOptionPane.PLAIN_MESSAGE, null, values1, null);
+                        String decision = (String) JOptionPane.showInputDialog(null,
+                                "Options", "",
+                                JOptionPane.PLAIN_MESSAGE, null, values2, null);
+                        ((Customer) user).saveShoppingCart();
+                        if (decision == null) {
+                            return;
+                        }
+                        if (decision.equals("Checkout $" + shoppingCartTotal((Customer) user))) {
+                            ((Customer) user).checkout();
+                            ((Customer) user).previouslyPurchasedFile();
+                            ((Customer) user).saveShoppingCart();
+                        }
+                        if (decision.equals("Remove Item")) {
+                            Product productToRemove;
+                            String pickIt = (String) JOptionPane.showInputDialog(null,
+                                    "Pick the item you want to remove", "",
+                                    JOptionPane.PLAIN_MESSAGE, null, values1, null);
+                            Product productToRemove1 = new Product("", "", "", 0, 0);
+                            for (Product product : ((Customer) user).getShoppingCart().getListOfProducts()) {
+                                if (product.getProductName().equalsIgnoreCase(pickIt)) {
+                                    productToRemove1 = product;
+                                    //            ((Customer) user).getShoppingCart().deleteProduct(product);
+                                    //            break;
+                                }
+                            }
+                            ((Customer) user).getShoppingCart().deleteProduct(productToRemove1);
+                            productToRemove1.setQuantity(productToRemove1.getQuantity() + productToRemove1.getQuantityInCart());
+                            saveProductsToFile();
+
+                        }
+                        if (decision.equals("Go Back")) {
+                            ((Customer) user).saveShoppingCart();
+                        }
+                        break;
+                }
+
+                }
         } else {
             boolean valid = true;
             while (valid) {
