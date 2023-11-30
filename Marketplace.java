@@ -16,6 +16,25 @@ public class Marketplace extends JComponent implements Runnable{
 
         SwingUtilities.invokeLater(new Marketplace());
     }
+    public static String viewPreviousPurchases(Customer customer) {
+        String previousProducts = "";
+        File previousPurchases = new File(customer.getUsername() + " _purchases.txt");
+        try (BufferedReader bfr = new BufferedReader(new FileReader(previousPurchases))) {
+            //bfr.readLine();
+            String line = bfr.readLine();
+            if (line == null || line.isEmpty()) {
+            }
+            while (line != null) {
+                if (!(line.contains("Previously Purchased Items: "))) {
+                    previousProducts = previousProducts + line + ",";
+                }
+                line = bfr.readLine();
+            }
+        } catch (IOException e) {
+            System.out.println("You have no previous purchases!");
+        }
+        return previousProducts;
+    }
 
     public static String createUser(String userType) {
         String line = null;
@@ -224,6 +243,15 @@ public class Marketplace extends JComponent implements Runnable{
         }
         return searchResults;
     }
+    public static Product viewItemPage(String itemName, String store) {
+        products = readFromFile();
+        for (Product prod : products) {
+            if (prod.getProductName().equalsIgnoreCase(itemName) && prod.getStoreName().equalsIgnoreCase(store)) {
+                return prod;
+            }
+        }
+        return null;
+    }
 
 
 
@@ -287,8 +315,8 @@ public class Marketplace extends JComponent implements Runnable{
         if (user instanceof Customer) {
             // customer implementation
             boolean continueNow = true;
+            user = new Customer(username, password);
             while (continueNow) {
-                user = new Customer(username, password);
                 String[] customerMenu = {"Search for a product", "Sort products by price",
                         "Sort products by quantity available", "View shopping cart",
                         "View product page to purchase", "View purchase history",
@@ -317,7 +345,6 @@ public class Marketplace extends JComponent implements Runnable{
                                 boolean foundIt = false;
                                 ArrayList<String> correctOnes = new ArrayList<String>();
                                 for (Product lookInside : storeItems) {
-                                    //String[] searchNamee = lookInside.split(",");
                                     if (lookInside.getProductName().contains(searchTerm)) {
                                         correctOnes.add(lookInside.toString());
                                     }
@@ -340,37 +367,34 @@ public class Marketplace extends JComponent implements Runnable{
                                 JOptionPane.showMessageDialog(null, "There is no store with this name",
                                         "Marketplace", JOptionPane.ERROR_MESSAGE);
                             }
-
                         } else {
                             String searchTerm = JOptionPane.showInputDialog(null, "What would you like to search",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
                             boolean foundIt = false;
                             ArrayList<String> correctOnes = new ArrayList<String>();
-                            //NEED TO WORK HERE
-                            //for (Product lookInside : storeItems) {
-                           //     //String[] searchNamee = lookInside.split(",");
-                            //    if (lookInside.getProductName().contains(searchTerm)) {
-                            //        correctOnes.add(lookInside.toString()\);
-                           //     }
-                           // }
-                          //  String[] productToDisplay = new String[correctOnes.size()];
-                          //  int counters = 0;
-                          //  for (String i : correctOnes) {
-                          //      productToDisplay[counters] = i;
-                         //       counters++;
-                           // }
-                           // if (productToDisplay.length == 0) {
-                           //     JOptionPane.showMessageDialog(null, "No products contained that search term!",
-                          //              "Marketplace", JOptionPane.ERROR_MESSAGE);
-                          //}
-                          // else {
-                          //      String showAll = (String) JOptionPane.showInputDialog(null, "Products containing the search term", "Marketplace",
-                          //              JOptionPane.PLAIN_MESSAGE, null, productToDisplay, null);
-                          //  }
+                            for (Product lookInside : products) {
+                                if (lookInside.getProductName().contains(searchTerm)) {
+                                    correctOnes.add(lookInside.toString());
+                                }
+                            }
+                            String[] productToDisplay = new String[correctOnes.size()];
+                            int counters = 0;
+                            for (String i : correctOnes) {
+                                productToDisplay[counters] = i;
+                                counters++;
+                            }
+                            if (productToDisplay.length == 0) {
+                                JOptionPane.showMessageDialog(null, "No products contained that search term!",
+                                        "Marketplace", JOptionPane.ERROR_MESSAGE);
+                            } else {
+                                String showAll = (String) JOptionPane.showInputDialog(null, "Products containing the search term", "Marketplace",
+                                        JOptionPane.PLAIN_MESSAGE, null, productToDisplay, null);
+                            }
+                            break;
                         }
-                       // break;
                     case "Sort products by price":
                         products = readFromFile();
+
                         products.sort(new SortByPrice());
                         //ArrayList<Product> products = user.getShoppingCart().getListOfProducts();
                         String[] newList = new String[products.size()];
@@ -394,16 +418,59 @@ public class Marketplace extends JComponent implements Runnable{
                         String new2 = (String) JOptionPane.showInputDialog(null, "Sorted by Quantity Available", "Marketplace",
                                 JOptionPane.PLAIN_MESSAGE, null, newList1, null);
                         break;
-                    case "View shopping cart":
+                    case ("View product page to purchase"):
+                        String nameOfIt = JOptionPane.showInputDialog(null, "Enter the EXACT name of the product.",
+                                "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                        String nameOfIt1 = JOptionPane.showInputDialog(null, "Enter the EXACT store name of the product.",
+                                "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                        Product product = viewItemPage(nameOfIt, nameOfIt1);
+                        if (product == null) {
+                            JOptionPane.showMessageDialog(null,"The item cannot be found",
+                                    "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+                            break;
+                        }
+                        String[] cartOption = {"Add to cart", "Go Back"};
+                        String page1 = product.returnProductPage();
+                        String selection1 = (String) JOptionPane.showInputDialog(null, page1, "Marketplace",
+                                JOptionPane.PLAIN_MESSAGE, null, cartOption, null);
+
+                        int numbers1 = -1;
+                        switch (selection1) {
+                            case "Add to cart":
+                                String numbers = JOptionPane.showInputDialog(null, "Enter the quantity of the product you would like to purchase.",
+                                        "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                                try {
+                                    numbers1 = Integer.parseInt(numbers);
+                                } catch (Exception e) {
+                                    JOptionPane.showMessageDialog(null, "Please enter an integer",
+                                            "Marketplace", JOptionPane.ERROR_MESSAGE);
+                                }
+                                if (numbers1 > product.getQuantity()) {
+                                    JOptionPane.showMessageDialog(null, "The quantity you would like to purchase is greater than the current value. Please try again!",
+                                            "Marketplace", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                                JOptionPane.showMessageDialog(null,"The product was added!",
+                                        "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+                                ((Customer) user).getShoppingCart().addProduct(product, numbers1);
+                                ((Customer) user).saveShoppingCart();
+                            case "Go Back":
+                                break;
+                        }
+                        break;
+                    case ("View shopping cart"):
                         String productsListed = ((Customer) user).getShoppingCart().displayShoppingCartAgain();
                         String productString = "";
-                        String[] values1 = new String[products.size()];
                         int iiii = 0;
-                        for (Product iii : products) {
+                        ArrayList<Product> list11 = getUserShoppingCart((Customer) user).getListOfProducts();
+                        String[] values1 = new String[list11.size()];
+                        for (Product iii : list11) {
                             productString = iii.getProductName();
                             values1[iiii] = productString;
                             iiii++;
                         }
+                        //((Customer) user).setShoppingCart(getUserShoppingCart((Customer) user));
+                        //((Customer) user).saveShoppingCart();
                         String[] values2 = {"Checkout $" + shoppingCartTotal((Customer) user), "Remove Item", "Go Back"};
                         String item = (String) JOptionPane.showInputDialog(null,
                                 "The Shopping Cart", "",
@@ -426,24 +493,38 @@ public class Marketplace extends JComponent implements Runnable{
                                     "Pick the item you want to remove", "",
                                     JOptionPane.PLAIN_MESSAGE, null, values1, null);
                             Product productToRemove1 = new Product("", "", "", 0, 0);
-                            for (Product product : ((Customer) user).getShoppingCart().getListOfProducts()) {
-                                if (product.getProductName().equalsIgnoreCase(pickIt)) {
-                                    productToRemove1 = product;
-                                    //            ((Customer) user).getShoppingCart().deleteProduct(product);
-                                    //            break;
+                            for (Product product111 : ((Customer) user).getShoppingCart().getListOfProducts()) {
+                                if (product111.getProductName().equalsIgnoreCase(pickIt)) {
+                                    productToRemove1 = product111;
+                                    ((Customer) user).getShoppingCart().deleteProduct(productToRemove1);
+                                    ((Customer) user).previouslyPurchasedFile();
+                                    ((Customer) user).saveShoppingCart();
+                                    //saveProductsToFile();
+                                    break;
                                 }
                             }
-                            ((Customer) user).getShoppingCart().deleteProduct(productToRemove1);
+                            //((Customer) user).getShoppingCart().deleteProduct(productToRemove1);
                             productToRemove1.setQuantity(productToRemove1.getQuantity() + productToRemove1.getQuantityInCart());
-                            saveProductsToFile();
-
                         }
                         if (decision.equals("Go Back")) {
                             ((Customer) user).saveShoppingCart();
                         }
                         break;
-                }
-
+                    case ("View purchase history"):
+                        String list = viewPreviousPurchases((Customer) user);
+                        String[] splitOnce = list.split(",");
+                        String item1 = (String) JOptionPane.showInputDialog(null,
+                                "The Purchase History (name then quantity)", "",
+                                JOptionPane.PLAIN_MESSAGE, null, splitOnce, null);
+                        break;
+                    case ("Export purchase history"):
+                        ((Customer) user).previouslyPurchasedFile();
+                        break;
+                    case ("Logout and Exit"):
+                        JOptionPane.showMessageDialog(null, "Thank you for using the marketplace!",
+                                "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
                 }
         } else {
             boolean valid = true;
