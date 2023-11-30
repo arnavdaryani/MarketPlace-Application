@@ -110,7 +110,7 @@ public class Customer {
 
     public void checkout() {
         for (Product prod : shoppingCart.getListOfProducts()) {
-            purchasedProducts.add(prod.getProductName());
+            purchasedProducts.add(prod.getProductName() + " | " + prod.getQuantity());
         }
         for (int i = 0; i < shoppingCart.getSize(); i++) {
             this.shoppingCart.getListOfProducts().remove(shoppingCart.getListOfProducts().get(i));
@@ -121,7 +121,7 @@ public class Customer {
         try {
             String newFile = username + " _purchases.txt";
             PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter((newFile), true)));
-            pw.println("Previously Purchased Items: ");
+            //pw.println("Previously Purchased Items: ");
             for (String s : purchasedProducts) {
                 pw.println(s);
             }
