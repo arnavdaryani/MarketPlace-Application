@@ -201,7 +201,29 @@ public class Marketplace extends JComponent implements Runnable{
             e.printStackTrace();
         }
     }
-
+    public static ArrayList<Product> searchForStore(String store) {
+        ArrayList<Product> searchResults = new ArrayList<>();
+        for (Product prod : products) {
+            if (prod.getStoreName().equalsIgnoreCase(store)) {
+                searchResults.add(prod);
+            }
+        }
+        return searchResults;
+    }
+    public static ArrayList<Product> searchForItemInStore(ArrayList<Product> firstList, String itemSearch) {
+        ArrayList<Product> searchResults = new ArrayList<>();
+        if (firstList.isEmpty()) {
+            System.out.println("There are no products to search from!");
+        } else {
+            for (Product prod : products) {
+                if (prod.getProductName().contains(itemSearch) || prod.getDescription().contains(itemSearch)
+                        || prod.getStoreName().contains(itemSearch)) {
+                    searchResults.add(prod);
+                }
+            }
+        }
+        return searchResults;
+    }
 
 
 
@@ -275,7 +297,78 @@ public class Marketplace extends JComponent implements Runnable{
                         JOptionPane.PLAIN_MESSAGE, null, customerMenu, null);
                 switch (selection) {
                     case "Search for a product":
-                        break;
+                        products = readFromFile();
+                        String[] selectionMenu = {"Search for a product by store name", "Search all products"};
+                        String selectionSearch = (String) JOptionPane.showInputDialog(null, "Pick an Option Below", "Marketplace",
+                                JOptionPane.PLAIN_MESSAGE, null, selectionMenu, null);
+                        if (selectionSearch.equals("Search for a product by store name")) {
+                            String nameOfIt = JOptionPane.showInputDialog(null, "What is the EXACT name of the store?",
+                                    "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                            ArrayList<Product> storeItems = Customer.readProductsFullyFromFile(nameOfIt);
+                            if (storeItems != null) {
+                                String[] newAgain = new String[storeItems.size()];
+                                int go = 0;
+                                for (Product prod : storeItems) {
+                                    newAgain[go] = prod.toString();
+                                    go++;
+                                }
+                                String searchTerm = JOptionPane.showInputDialog(null, "What would you like to search",
+                                        "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                                boolean foundIt = false;
+                                ArrayList<String> correctOnes = new ArrayList<String>();
+                                for (Product lookInside : storeItems) {
+                                    //String[] searchNamee = lookInside.split(",");
+                                    if (lookInside.getProductName().contains(searchTerm)) {
+                                        correctOnes.add(lookInside.toString());
+                                    }
+                                }
+                                String[] productToDisplay = new String[correctOnes.size()];
+                                int counters = 0;
+                                for (String i : correctOnes) {
+                                    productToDisplay[counters] = i;
+                                    counters++;
+                                }
+                                if (productToDisplay.length == 0) {
+                                    JOptionPane.showMessageDialog(null, "No products contained that search term!",
+                                            "Marketplace", JOptionPane.ERROR_MESSAGE);
+                                }
+                                else {
+                                    String showAll = (String) JOptionPane.showInputDialog(null, "Products containing the search term", "Marketplace",
+                                            JOptionPane.PLAIN_MESSAGE, null, productToDisplay, null);
+                                }
+                            } else {
+                                JOptionPane.showMessageDialog(null, "There is no store with this name",
+                                        "Marketplace", JOptionPane.ERROR_MESSAGE);
+                            }
+
+                        } else {
+                            String searchTerm = JOptionPane.showInputDialog(null, "What would you like to search",
+                                    "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                            boolean foundIt = false;
+                            ArrayList<String> correctOnes = new ArrayList<String>();
+                            //NEED TO WORK HERE
+                            //for (Product lookInside : storeItems) {
+                           //     //String[] searchNamee = lookInside.split(",");
+                            //    if (lookInside.getProductName().contains(searchTerm)) {
+                            //        correctOnes.add(lookInside.toString()\);
+                           //     }
+                           // }
+                          //  String[] productToDisplay = new String[correctOnes.size()];
+                          //  int counters = 0;
+                          //  for (String i : correctOnes) {
+                          //      productToDisplay[counters] = i;
+                         //       counters++;
+                           // }
+                           // if (productToDisplay.length == 0) {
+                           //     JOptionPane.showMessageDialog(null, "No products contained that search term!",
+                          //              "Marketplace", JOptionPane.ERROR_MESSAGE);
+                          //}
+                          // else {
+                          //      String showAll = (String) JOptionPane.showInputDialog(null, "Products containing the search term", "Marketplace",
+                          //              JOptionPane.PLAIN_MESSAGE, null, productToDisplay, null);
+                          //  }
+                        }
+                       // break;
                     case "Sort products by price":
                         products = readFromFile();
                         products.sort(new SortByPrice());
