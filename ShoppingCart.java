@@ -49,6 +49,18 @@ public class ShoppingCart  {
                     + " = " + product.getPrice()* product.getQuantity());
         }
     }
+    public String displayShoppingCartAgain() {
+        if (listOfProducts.isEmpty()) {
+            return ("Your cart is empty!");
+        }
+        String returned = "";
+        int i = 1;
+        for (Product product : listOfProducts) {
+             returned = returned + ("[" + i + "] " + product.getProductName() + " -- " + product.getQuantity() + " x " + product.getPrice()
+                    + " = " + product.getPrice()* product.getQuantity()) + "\n";
+        }
+        return returned;
+    }
     public String displayShoppingCartGUI() {
         String returned1 = "";
         if (listOfProducts.isEmpty()) {
