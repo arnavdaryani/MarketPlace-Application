@@ -16,6 +16,40 @@ public class Customer {
         this.fileName = username + " _info.txt";
         this.purchasedProducts = new ArrayList<>();
     }
+    public static ArrayList<String> readStoreNamesFromFile(String username) {
+        ArrayList<String> storeNames = new ArrayList<>();
+        String fileName = username + "_stores.txt";
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String storeName;
+            while ((storeName = reader.readLine()) != null) {
+                storeNames.add(storeName);
+            }
+        } catch (IOException e) {
+            // Handle file reading errors, if any
+            e.printStackTrace();
+        }
+        return storeNames;
+    }
+
+    public static ArrayList<Product> readProductsFullyFromFile(String storeName) {
+        ArrayList<Product> productNames = new ArrayList<>();
+        String[] details;
+        String fileName = storeName + ".txt";
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(fileName));
+            String line = null;
+
+            while ((line = reader.readLine()) != null) {
+                details = line.split(",");
+                productNames.add(new Product(details[0], details[1], details[2], Double.parseDouble(details[3]), Integer.parseInt(details[4])));
+            }
+
+        } catch (IOException e) {
+            // Handle file reading errors, if any
+            return null;
+        }
+        return productNames;
+    }
 
     public Customer(String username, String password, ShoppingCart shoppingCart) {
         this.shoppingCart = shoppingCart;
