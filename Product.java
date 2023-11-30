@@ -132,9 +132,11 @@ public class Product implements Comparable<Product> {
                 productName, storeName, description, price, quantity);
         System.out.println();
     }
+    public String returnProductPage() {
+        return ("Name: " + productName + "\nStore Name: " + storeName + "\nDescription: " + description + "\nPrice: " + price + "\nQuantity Available: " + quantity);
+    }
     public String toString() {
         return("Name: " + productName + "\nStore Name: " + storeName + "\nPrice: " + price + "\n");
     }
 
 }
-
