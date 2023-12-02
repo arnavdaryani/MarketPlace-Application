@@ -42,7 +42,7 @@ public class Marketplace extends JComponent implements Runnable {
                             Double.parseDouble(productInfo[3]), Integer.parseInt(productInfo[4]));
                     availableProducts.add(product);
                 } else {
-                     //Handle the case where the line doesn't have enough elements
+                    //Handle the case where the line doesn't have enough elements
                     System.out.println("Invalid product data: " + line);
                 }
             }
@@ -366,14 +366,14 @@ public class Marketplace extends JComponent implements Runnable {
                                 for (String i : correctOnes) {
                                     productToDisplay[counters] = i;
                                     counters++;
-                                    if (productToDisplay.length == 0) {
-                                        JOptionPane.showMessageDialog(null, "No products contained that search term!",
-                                                "Marketplace", JOptionPane.ERROR_MESSAGE);
-                                    } else {
-                                        String showAll = (String) JOptionPane.showInputDialog(null, "Products containing the search term", "Marketplace",
-                                                JOptionPane.PLAIN_MESSAGE, null, productToDisplay, null);
-                                    }
                                 }
+                                if (productToDisplay.length == 0) {
+                                    JOptionPane.showMessageDialog(null, "No products contained that search term!",
+                                            "Marketplace", JOptionPane.ERROR_MESSAGE);
+                                } else {
+                                    String showAll = (String) JOptionPane.showInputDialog(null, "Products containing the search term", "Marketplace",
+                                            JOptionPane.PLAIN_MESSAGE, null, productToDisplay, null);
+                                    }
                             } else {
                                 JOptionPane.showMessageDialog(null, "There is no store with this name",
                                         "Marketplace", JOptionPane.ERROR_MESSAGE);
@@ -406,6 +406,7 @@ public class Marketplace extends JComponent implements Runnable {
                             }
                             break;
                         }
+                        break;
                     case "Sort products by price":
                         products = readFromFile();
 
