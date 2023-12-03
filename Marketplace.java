@@ -7,7 +7,7 @@ import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Marketplace extends JComponent implements Runnable{
+public class Marketplace extends JComponent implements Runnable {
     // STILL NEED TO MAKE SURE THE USER CAN PRESS CANCEL OR RED X BUTTON AT ANY TIME DURING THE PROGRAM
     public static ArrayList<Product> products = new ArrayList<>();
     private String userType;
@@ -18,6 +18,42 @@ public class Marketplace extends JComponent implements Runnable{
 
         SwingUtilities.invokeLater(new Marketplace());
     }
+
+    public static double shoppingCartTotal(Customer customer) {
+        ShoppingCart sc = customer.getShoppingCart();
+        double total = 0;
+        if (sc.getListOfProducts().isEmpty()) {
+            return total;
+        }
+        for (Product p : sc.getListOfProducts()) {
+            total += p.getQuantity() * p.getPrice();
+        }
+        return total;
+    }
+
+    public static ArrayList<Product> readFromFile() {
+        ArrayList<Product> availableProducts = new ArrayList<>();
+        try (BufferedReader bfr = new BufferedReader(new FileReader(p))) {
+            String line;
+            while ((line = bfr.readLine()) != null) {
+                String[] productInfo = line.split(",");
+
+                // Check if the array has the expected number of elements
+                if (productInfo.length == 5) {
+                    Product product = new Product(productInfo[0], productInfo[1], productInfo[2],
+                            Double.parseDouble(productInfo[3]), Integer.parseInt(productInfo[4]));
+                    availableProducts.add(product);
+                } else {
+                     //Handle the case where the line doesn't have enough elements
+                    System.out.println("Invalid product data: " + line);
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            System.out.println("Error reading products from file: " + e.getMessage());
+        }
+        return availableProducts;
+    }
+
     public static String viewPreviousPurchases(Customer customer) {
         String previousProducts = "";
         File previousPurchases = new File(customer.getUsername() + " _purchases.txt");
@@ -38,32 +74,40 @@ public class Marketplace extends JComponent implements Runnable{
         return previousProducts;
     }
 
+    public static Product viewItemPage(String itemName, String store) {
+        products = readFromFile();
+        for (Product prod : products) {
+            if (prod.getProductName().equalsIgnoreCase(itemName) && prod.getStoreName().equalsIgnoreCase(store)) {
+                return prod;
+            }
+        }
+        return null;
+    }
+
     public static String createUser(String userType, BufferedReader reader, PrintWriter writer) {  
         String line = null;
         String username;
         String password;
         String confirmPassword;
 
-        do {
-            username = JOptionPane.showInputDialog(null, "Enter username:","Marketplace", JOptionPane.QUESTION_MESSAGE);
-            writer.write(username);
-            writer.println();
-            writer.flush();
-            boolean taken = false;
-            try {
-                taken = Boolean.parseBoolean(reader.readLine());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            if (taken) {
-                JOptionPane.showMessageDialog(null, "This username is already taken. Please try again!",
-                        "Marketplace", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                break;
-            }
-    
-        } while (true);
+            do {
+                username = JOptionPane.showInputDialog(null, "Enter username:","Marketplace", JOptionPane.QUESTION_MESSAGE);
+                line = bfr.readLine();
+                boolean taken = false;
+                while (line != null) {
+                    String[] userData = line.split(",");
+                    if (userData[0].equals(username)) {
+                        JOptionPane.showMessageDialog(null, "This username is already taken! Please try again.",
+                                "Marketplace", JOptionPane.ERROR_MESSAGE);
+                        taken = true;
+                        break;
+                    }
+                    line = bfr.readLine();
+                }
+                if (!taken) {
+                    break;
+                }
+            } while (true);
 
         do {
             password = JOptionPane.showInputDialog(null, "Enter password:",
@@ -99,16 +143,21 @@ public class Marketplace extends JComponent implements Runnable{
             try (BufferedReader bfr = new BufferedReader(new FileReader("users.txt"))) {
                 String username = JOptionPane.showInputDialog(null, "Enter your username:");
                 String password = JOptionPane.showInputDialog(null, "Enter your password:");
+                line = bfr.readLine();
 
-                writer.write(username);
-                writer.println();
-                writer.flush();
-                writer.write(password);
-                writer.println();
-                writer.flush();
+                while (line != null) {
+                    String[] userData = line.split(",");
+                    String storedUsername = userData[0];
+                    String storedPassword = userData[1];
 
-                line = reader.readLine();
-                loggedIn = Boolean.parseBoolean(reader.readLine());
+                    if (username.equals(storedUsername) && password.equals(storedPassword)) {
+                        JOptionPane.showMessageDialog(null,"Success! You are now logged in!",
+                                "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+                        loggedIn = true;
+                        break;
+                    }
+                    line = bfr.readLine();
+                }
 
                 if (!loggedIn) {
                     JOptionPane.showMessageDialog(null, "Either your username or password is wrong, " +
@@ -147,6 +196,7 @@ public class Marketplace extends JComponent implements Runnable{
         }
         return new ShoppingCart(prods);
     }
+
     public static void addStoreToSellerFile(String storeName, Seller seller) {
         try (PrintWriter pw = new PrintWriter(new FileWriter(seller.getFileName(), true))) {
             pw.println(storeName);
@@ -160,33 +210,7 @@ public class Marketplace extends JComponent implements Runnable{
             e.printStackTrace();
         }
     }
-    public static double shoppingCartTotal(Customer customer) {
-        ShoppingCart sc = customer.getShoppingCart();
-        double total = 0;
-        if (sc.getListOfProducts().isEmpty()) {
-            return total;
-        }
-        for (Product p : sc.getListOfProducts()) {
-            total += p.getQuantity() * p.getPrice();
-        }
-        return total;
-    }
-    public static ArrayList<Product> readFromFile() {
-        ArrayList<Product> availableProducts = new ArrayList<>();
-        try (BufferedReader bfr = new BufferedReader(new FileReader(p))) {
-            String line = bfr.readLine();
-            while (line != null) {
-                String[] productInfo = line.split(",");
-                Product product = new Product(productInfo[0], productInfo[1], productInfo[2],
-                        Double.parseDouble(productInfo[3]), Integer.parseInt(productInfo[4]));
-                availableProducts.add(product);
-                line = bfr.readLine();
-            }
-        } catch (IOException e) {
-            System.out.println("No products are currently listed!\n");
-        }
-        return availableProducts;
-    }
+
     public static void addProductToStore(String storeName, Seller seller) {
         try (PrintWriter pw = new PrintWriter(new FileWriter(storeName + ".txt", true), true)) {
             String productDetails = JOptionPane.showInputDialog(null, "Enter product details separated by commas (name,store name,description,price,quantity):",
@@ -209,6 +233,7 @@ public class Marketplace extends JComponent implements Runnable{
                     "Marketplace", JOptionPane.ERROR_MESSAGE);
         }
     }
+
     public static void saveProductsToFile() {
         try (PrintWriter pw = new PrintWriter(new FileWriter(p, true))) {
             for (Product prod : products) {
@@ -219,6 +244,7 @@ public class Marketplace extends JComponent implements Runnable{
             e.printStackTrace();
         }
     }
+
     public static ArrayList<Product> searchForStore(String store) {
         ArrayList<Product> searchResults = new ArrayList<>();
         for (Product prod : products) {
@@ -228,6 +254,7 @@ public class Marketplace extends JComponent implements Runnable{
         }
         return searchResults;
     }
+
     public static ArrayList<Product> searchForItemInStore(ArrayList<Product> firstList, String itemSearch) {
         ArrayList<Product> searchResults = new ArrayList<>();
         if (firstList.isEmpty()) {
@@ -242,36 +269,19 @@ public class Marketplace extends JComponent implements Runnable{
         }
         return searchResults;
     }
-    public static Product viewItemPage(String itemName, String store) {
-        products = readFromFile();
-        for (Product prod : products) {
-            if (prod.getProductName().equalsIgnoreCase(itemName) && prod.getStoreName().equalsIgnoreCase(store)) {
-                return prod;
-            }
-        }
-        return null;
-    }
-
 
 
     public void run() {
-        BufferedReader reader = null;
-        PrintWriter writer = null; 
-        try  {
-            Socket socket = new Socket("localhost", 5000);
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            writer = new PrintWriter(socket.getOutputStream(), true);
-
-            Object user = null;
-            String username = "";
-            String password = "";
-            Font customFont = new Font("Arial", Font.BOLD, 24);
-            JLabel label = new JLabel("Welcome to Marketplace!");
-            label.setFont(customFont);
-            //Image icon = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB_PRE);
-            // IS THERE A WAY TO GET RID OF THE ICON?
-            BufferedImage transparentImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB_PRE);
-            ImageIcon icon = new ImageIcon(transparentImage);
+        Object user = null;
+        String username = "";
+        String password = "";
+        Font customFont = new Font("Arial", Font.BOLD, 24);
+        JLabel label = new JLabel("Welcome to Marketplace!");
+        label.setFont(customFont);
+        //Image icon = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB_PRE);
+        // IS THERE A WAY TO GET RID OF THE ICON?
+        BufferedImage transparentImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB_PRE);
+        ImageIcon icon = new ImageIcon(transparentImage);
 
             JOptionPane.showMessageDialog(null, label, "Marketplace", JOptionPane.INFORMATION_MESSAGE, icon);
 
@@ -283,108 +293,74 @@ public class Marketplace extends JComponent implements Runnable{
                     "Marketplace", JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
-            // Process the user's choice
-            if (choice == JOptionPane.YES_OPTION) {
-                writer.write("Login");
-                writer.println();
-                writer.flush();
-                String userInfo = login(reader, writer);
-                String[] userData = userInfo.split(",");
+        // Process the user's choice
+        if (choice == JOptionPane.YES_OPTION) {
+            String userInfo = login();
+            String[] userData = userInfo.split(",");
+            username = userData[0];
+            password = userData[1];
+            if (userData[2].equals("Customer")) {
+                user = new Customer(username, password);
+                ShoppingCart shoppingCart = getUserShoppingCart((Customer) user);
+                user = new Customer(username, password,shoppingCart);
+            } else {
+                user = new Seller(username, password);
+            }
+        } else if (choice == JOptionPane.NO_OPTION) {
+            String[] custOrSell = {"Customer", "Seller"};
+            userType = (String) JOptionPane.showInputDialog(null,"Are you a customer or seller?", "Marketplace",
+                     JOptionPane.PLAIN_MESSAGE, null, custOrSell, null);
+            String userInfo = createUser(userType);
+            String[] userData = userInfo.split(",");
+            if (userData.length >= 2) {
                 username = userData[0];
                 password = userData[1];
                 if (userData[2].equals("Customer")) {
                     user = new Customer(username, password);
                     ShoppingCart shoppingCart = getUserShoppingCart((Customer) user);
-                    user = new Customer(username, password,shoppingCart);
+                    user = new Customer(username, password, shoppingCart);
                 } else {
                     user = new Seller(username, password);
                 }
-            } else if (choice == JOptionPane.NO_OPTION) {
-                writer.write("Signup");
-                writer.println();
-                writer.flush();
-                String[] custOrSell = {"Customer", "Seller"};
-                userType = (String) JOptionPane.showInputDialog(null,"Are you a customer or seller?", "Marketplace",
-                            JOptionPane.PLAIN_MESSAGE, null, custOrSell, null);
-                String userInfo = createUser(userType, reader, writer);
-                String[] userData = userInfo.split(",");
-                if (userData.length >= 2) {
-                    username = userData[0];
-                    password = userData[1];
-                    if (userData[2].equals("Customer")) {
-                        user = new Customer(username, password);
-                        ShoppingCart shoppingCart = getUserShoppingCart((Customer) user);
-                        user = new Customer(username, password, shoppingCart);
-                    } else {
-                        user = new Seller(username, password);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(null, "Invalid user data format.", "Marketplace", JOptionPane.ERROR_MESSAGE);
-                }
             } else {
-                return;
+                JOptionPane.showMessageDialog(null, "Invalid user data format.", "Marketplace", JOptionPane.ERROR_MESSAGE);
             }
-            if (user instanceof Customer) {
-                // customer implementation
-                boolean continueNow = true;
-                user = new Customer(username, password);
-                while (continueNow) {
-                    String[] customerMenu = {"Search for a product", "Sort products by price",
-                            "Sort products by quantity available", "View shopping cart",
-                            "View product page to purchase", "View purchase history",
-                            "Export purchase history", "Logout and Exit"};
-                    String selection = (String) JOptionPane.showInputDialog(null, "Pick Below", "Marketplace",
-                            JOptionPane.PLAIN_MESSAGE, null, customerMenu, null);
-                    switch (selection) {
-                        case "Search for a product":
-                            products = readFromFile();
-                            String[] selectionMenu = {"Search for a product by store name", "Search all products"};
-                            String selectionSearch = (String) JOptionPane.showInputDialog(null, "Pick an Option Below", "Marketplace",
-                                    JOptionPane.PLAIN_MESSAGE, null, selectionMenu, null);
-                            if (selectionSearch.equals("Search for a product by store name")) {
-                                String nameOfIt = JOptionPane.showInputDialog(null, "What is the EXACT name of the store?",
-                                        "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                                ArrayList<Product> storeItems = Customer.readProductsFullyFromFile(nameOfIt);
-                                if (storeItems != null) {
-                                    String[] newAgain = new String[storeItems.size()];
-                                    int go = 0;
-                                    for (Product prod : storeItems) {
-                                        newAgain[go] = prod.toString();
-                                        go++;
-                                    }
-                                    String searchTerm = JOptionPane.showInputDialog(null, "What would you like to search",
-                                            "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                                    boolean foundIt = false;
-                                    ArrayList<String> correctOnes = new ArrayList<String>();
-                                    for (Product lookInside : storeItems) {
-                                        if (lookInside.getProductName().contains(searchTerm)) {
-                                            correctOnes.add(lookInside.toString());
-                                        }
-                                    }
-                                    String[] productToDisplay = new String[correctOnes.size()];
-                                    int counters = 0;
-                                    for (String i : correctOnes) {
-                                        productToDisplay[counters] = i;
-                                        counters++;
-                                    }
-                                    if (productToDisplay.length == 0) {
-                                        JOptionPane.showMessageDialog(null, "No products contained that search term!",
-                                                "Marketplace", JOptionPane.ERROR_MESSAGE);
-                                    }
-                                    else {
-                                        String showAll = (String) JOptionPane.showInputDialog(null, "Products containing the search term", "Marketplace",
-                                                JOptionPane.PLAIN_MESSAGE, null, productToDisplay, null);
-                                    }
-                                } else {
-                                    JOptionPane.showMessageDialog(null, "There is no store with this name",
-                                            "Marketplace", JOptionPane.ERROR_MESSAGE);
+        } else {
+            return;
+        }
+        if (user instanceof Customer) {
+            // customer implementation
+            boolean continueNow = true;
+            user = new Customer(username, password);
+            while (continueNow) {
+                String[] customerMenu = {"Search for a product", "Sort products by price",
+                        "Sort products by quantity available", "View shopping cart",
+                        "View product page to purchase", "View purchase history",
+                        "Export purchase history", "Logout and Exit"};
+                String selection = (String) JOptionPane.showInputDialog(null, "Pick Below", "Marketplace",
+                        JOptionPane.PLAIN_MESSAGE, null, customerMenu, null);
+                switch (selection) {
+                    case "Search for a product":
+                        products = readFromFile();
+                        String[] selectionMenu = {"Search for a product by store name", "Search all products"};
+                        String selectionSearch = (String) JOptionPane.showInputDialog(null, "Pick an Option Below", "Marketplace",
+                                JOptionPane.PLAIN_MESSAGE, null, selectionMenu, null);
+                        if (selectionSearch.equals("Search for a product by store name")) {
+                            String nameOfIt = JOptionPane.showInputDialog(null, "What is the EXACT name of the store?",
+                                    "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                            ArrayList<Product> storeItems = Customer.readProductsFullyFromFile(nameOfIt);
+                            if (storeItems != null) {
+                                String[] newAgain = new String[storeItems.size()];
+                                int go = 0;
+                                for (Product prod : storeItems) {
+                                    newAgain[go] = prod.toString();
+                                    go++;
                                 }
-                            } else {
                                 String searchTerm = JOptionPane.showInputDialog(null, "What would you like to search",
                                         "Marketplace", JOptionPane.QUESTION_MESSAGE);
                                 boolean foundIt = false;
                                 ArrayList<String> correctOnes = new ArrayList<String>();
-                                for (Product lookInside : products) {
+                                for (Product lookInside : storeItems) {
                                     if (lookInside.getProductName().contains(searchTerm)) {
                                         correctOnes.add(lookInside.toString());
                                     }
@@ -398,178 +374,205 @@ public class Marketplace extends JComponent implements Runnable{
                                 if (productToDisplay.length == 0) {
                                     JOptionPane.showMessageDialog(null, "No products contained that search term!",
                                             "Marketplace", JOptionPane.ERROR_MESSAGE);
-                                } else {
+                                }
+                                else {
                                     String showAll = (String) JOptionPane.showInputDialog(null, "Products containing the search term", "Marketplace",
                                             JOptionPane.PLAIN_MESSAGE, null, productToDisplay, null);
                                 }
-                                break;
+                            } else {
+                                JOptionPane.showMessageDialog(null, "There is no store with this name",
+                                        "Marketplace", JOptionPane.ERROR_MESSAGE);
                             }
-                        case "Sort products by price":
-                            products = readFromFile();
-
-                            products.sort(new SortByPrice());
-                            //ArrayList<Product> products = user.getShoppingCart().getListOfProducts();
-                            String[] newList = new String[products.size()];
-                            int i = 0;
-                            for (Product prod : products) {
-                                newList[i] = prod.toString();
-                                i++;
-                            }
-                            String new1 = (String) JOptionPane.showInputDialog(null, "Sorted by Price", "Marketplace",
-                                    JOptionPane.PLAIN_MESSAGE, null, newList, null);
-                            break;
-                        case "Sort products by quantity available":
-                            products = readFromFile();
-                            products.sort(new SortByQuantity());
-                            String[] newList1 = new String[products.size()];
-                            int ii = 0;
-                            for (Product prod : products) {
-                                newList1[ii] = prod.toString();
-                                ii++;
-                            }
-                            String new2 = (String) JOptionPane.showInputDialog(null, "Sorted by Quantity Available", "Marketplace",
-                                    JOptionPane.PLAIN_MESSAGE, null, newList1, null);
-                            break;
-                        case ("View product page to purchase"):
-                            String nameOfIt = JOptionPane.showInputDialog(null, "Enter the EXACT name of the product.",
+                        } else {
+                            String searchTerm = JOptionPane.showInputDialog(null, "What would you like to search",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                            String nameOfIt1 = JOptionPane.showInputDialog(null, "Enter the EXACT store name of the product.",
-                                    "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                            Product product = viewItemPage(nameOfIt, nameOfIt1);
-                            if (product == null) {
-                                JOptionPane.showMessageDialog(null,"The item cannot be found",
-                                        "Marketplace", JOptionPane.INFORMATION_MESSAGE);
-                                break;
-                            }
-                            String[] cartOption = {"Add to cart", "Go Back"};
-                            String page1 = product.returnProductPage();
-                            String selection1 = (String) JOptionPane.showInputDialog(null, page1, "Marketplace",
-                                    JOptionPane.PLAIN_MESSAGE, null, cartOption, null);
-
-                            int numbers1 = -1;
-                            switch (selection1) {
-                                case "Add to cart":
-                                    String numbers = JOptionPane.showInputDialog(null, "Enter the quantity of the product you would like to purchase.",
-                                            "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                                    try {
-                                        numbers1 = Integer.parseInt(numbers);
-                                    } catch (Exception e) {
-                                        JOptionPane.showMessageDialog(null, "Please enter an integer",
-                                                "Marketplace", JOptionPane.ERROR_MESSAGE);
-                                    }
-                                    if (numbers1 > product.getQuantity()) {
-                                        JOptionPane.showMessageDialog(null, "The quantity you would like to purchase is greater than the current value. Please try again!",
-                                                "Marketplace", JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                    }
-                                    JOptionPane.showMessageDialog(null,"The product was added!",
-                                            "Marketplace", JOptionPane.INFORMATION_MESSAGE);
-                                    ((Customer) user).getShoppingCart().addProduct(product, numbers1);
-                                    ((Customer) user).saveShoppingCart();
-                                case "Go Back":
-                                    break;
-                            }
-                            break;
-                        case ("View shopping cart"):
-                            String productsListed = ((Customer) user).getShoppingCart().displayShoppingCartAgain();
-                            String productString = "";
-                            int iiii = 0;
-                            ArrayList<Product> list11 = getUserShoppingCart((Customer) user).getListOfProducts();
-                            String[] values1 = new String[list11.size()];
-                            for (Product iii : list11) {
-                                productString = iii.getProductName();
-                                values1[iiii] = productString;
-                                iiii++;
-                            }
-                            //((Customer) user).setShoppingCart(getUserShoppingCart((Customer) user));
-                            //((Customer) user).saveShoppingCart();
-                            String[] values2 = {"Checkout $" + shoppingCartTotal((Customer) user), "Remove Item", "Go Back"};
-                            String item = (String) JOptionPane.showInputDialog(null,
-                                    "The Shopping Cart", "",
-                                    JOptionPane.PLAIN_MESSAGE, null, values1, null);
-                            String decision = (String) JOptionPane.showInputDialog(null,
-                                    "Options", "",
-                                    JOptionPane.PLAIN_MESSAGE, null, values2, null);
-                            ((Customer) user).saveShoppingCart();
-                            if (decision == null) {
-                                return;
-                            }
-                            if (decision.equals("Checkout $" + shoppingCartTotal((Customer) user))) {
-                                ((Customer) user).checkout();
-                                ((Customer) user).previouslyPurchasedFile();
-                                ((Customer) user).saveShoppingCart();
-                            }
-                            if (decision.equals("Remove Item")) {
-                                Product productToRemove;
-                                String pickIt = (String) JOptionPane.showInputDialog(null,
-                                        "Pick the item you want to remove", "",
-                                        JOptionPane.PLAIN_MESSAGE, null, values1, null);
-                                Product productToRemove1 = new Product("", "", "", 0, 0);
-                                for (Product product111 : ((Customer) user).getShoppingCart().getListOfProducts()) {
-                                    if (product111.getProductName().equalsIgnoreCase(pickIt)) {
-                                        productToRemove1 = product111;
-                                        ((Customer) user).getShoppingCart().deleteProduct(productToRemove1);
-                                        ((Customer) user).previouslyPurchasedFile();
-                                        ((Customer) user).saveShoppingCart();
-                                        //saveProductsToFile();
-                                        break;
-                                    }
+                            boolean foundIt = false;
+                            ArrayList<String> correctOnes = new ArrayList<String>();
+                            for (Product lookInside : products) {
+                                if (lookInside.getProductName().contains(searchTerm)) {
+                                    correctOnes.add(lookInside.toString());
                                 }
-                                //((Customer) user).getShoppingCart().deleteProduct(productToRemove1);
-                                productToRemove1.setQuantity(productToRemove1.getQuantity() + productToRemove1.getQuantityInCart());
                             }
-                            if (decision.equals("Go Back")) {
-                                ((Customer) user).saveShoppingCart();
+                            String[] productToDisplay = new String[correctOnes.size()];
+                            int counters = 0;
+                            for (String i : correctOnes) {
+                                productToDisplay[counters] = i;
+                                counters++;
+                            }
+                            if (productToDisplay.length == 0) {
+                                JOptionPane.showMessageDialog(null, "No products contained that search term!",
+                                        "Marketplace", JOptionPane.ERROR_MESSAGE);
+                            } else {
+                                String showAll = (String) JOptionPane.showInputDialog(null, "Products containing the search term", "Marketplace",
+                                        JOptionPane.PLAIN_MESSAGE, null, productToDisplay, null);
                             }
                             break;
-                        case ("View purchase history"):
-                            String list = viewPreviousPurchases((Customer) user);
-                            String[] splitOnce = list.split(",");
-                            String item1 = (String) JOptionPane.showInputDialog(null,
-                                    "The Purchase History (name then quantity)", "",
-                                    JOptionPane.PLAIN_MESSAGE, null, splitOnce, null);
-                            break;
-                        case ("Export purchase history"):
-                            ((Customer) user).previouslyPurchasedFile();
-                            break;
-                        case ("Logout and Exit"):
-                            JOptionPane.showMessageDialog(null, "Thank you for using the marketplace!",
+                        }
+                    case "Sort products by price":
+                        products = readFromFile();
+
+                        products.sort(new SortByPrice());
+                        //ArrayList<Product> products = user.getShoppingCart().getListOfProducts();
+                        String[] newList = new String[products.size()];
+                        int i = 0;
+                        for (Product prod : products) {
+                            newList[i] = prod.toString();
+                            i++;
+                        }
+                        String new1 = (String) JOptionPane.showInputDialog(null, "Sorted by Price", "Marketplace",
+                                JOptionPane.PLAIN_MESSAGE, null, newList, null);
+                        break;
+                    case "Sort products by quantity available":
+                        products = readFromFile();
+                        products.sort(new SortByQuantity());
+                        String[] newList1 = new String[products.size()];
+                        int ii = 0;
+                        for (Product prod : products) {
+                            newList1[ii] = prod.toString();
+                            ii++;
+                        }
+                        String new2 = (String) JOptionPane.showInputDialog(null, "Sorted by Quantity Available", "Marketplace",
+                                JOptionPane.PLAIN_MESSAGE, null, newList1, null);
+                        break;
+                    case ("View product page to purchase"):
+                        String nameOfIt = JOptionPane.showInputDialog(null, "Enter the EXACT name of the product.",
+                                "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                        String nameOfIt1 = JOptionPane.showInputDialog(null, "Enter the EXACT store name of the product.",
+                                "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                        Product product = viewItemPage(nameOfIt, nameOfIt1);
+                        if (product == null) {
+                            JOptionPane.showMessageDialog(null,"The item cannot be found",
                                     "Marketplace", JOptionPane.INFORMATION_MESSAGE);
-                            socket.close();
+                            break;
+                        }
+                        String[] cartOption = {"Add to cart", "Go Back"};
+                        String page1 = product.returnProductPage();
+                        String selection1 = (String) JOptionPane.showInputDialog(null, page1, "Marketplace",
+                                JOptionPane.PLAIN_MESSAGE, null, cartOption, null);
+
+                        int numbers1 = -1;
+                        switch (selection1) {
+                            case "Add to cart":
+                                String numbers = JOptionPane.showInputDialog(null, "Enter the quantity of the product you would like to purchase.",
+                                        "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                                try {
+                                    numbers1 = Integer.parseInt(numbers);
+                                } catch (Exception e) {
+                                    JOptionPane.showMessageDialog(null, "Please enter an integer",
+                                            "Marketplace", JOptionPane.ERROR_MESSAGE);
+                                }
+                                if (numbers1 > product.getQuantity()) {
+                                    JOptionPane.showMessageDialog(null, "The quantity you would like to purchase is greater than the current value. Please try again!",
+                                            "Marketplace", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                                JOptionPane.showMessageDialog(null,"The product was added!",
+                                        "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+                                ((Customer) user).getShoppingCart().addProduct(product, numbers1);
+                                ((Customer) user).saveShoppingCart();
+                            case "Go Back":
+                                break;
+                        }
+                        break;
+                    case ("View shopping cart"):
+                        String productsListed = ((Customer) user).getShoppingCart().displayShoppingCartAgain();
+                        String productString = "";
+                        int iiii = 0;
+                        ArrayList<Product> list11 = getUserShoppingCart((Customer) user).getListOfProducts();
+                        String[] values1 = new String[list11.size()];
+                        for (Product iii : list11) {
+                            productString = iii.getProductName();
+                            values1[iiii] = productString;
+                            iiii++;
+                        }
+                        //((Customer) user).setShoppingCart(getUserShoppingCart((Customer) user));
+                        //((Customer) user).saveShoppingCart();
+                        String[] values2 = {"Checkout $" + shoppingCartTotal((Customer) user), "Remove Item", "Go Back"};
+                        String item = (String) JOptionPane.showInputDialog(null,
+                                "The Shopping Cart", "",
+                                JOptionPane.PLAIN_MESSAGE, null, values1, null);
+                        String decision = (String) JOptionPane.showInputDialog(null,
+                                "Options", "",
+                                JOptionPane.PLAIN_MESSAGE, null, values2, null);
+                        ((Customer) user).saveShoppingCart();
+                        if (decision == null) {
                             return;
                         }
-                    }
-            } else {
-                boolean valid = true;
-                while (valid) {
-                    user = new Seller(username, password);
-                    String[] sellerMenu = {"Create a new store", "Delete an existing store", "Edit a product", "Add product",
-                            "Delete product", "View Sales", "View number of products currently in customer shopping carts",
-                            "Import products to store(csv file)", "Export products to store(csv file)",
-                            "View products currently in each store", "Logout and Exit"};
-                    String selection = (String) JOptionPane.showInputDialog(null, "What would you like to do", "Marketplace",
-                            JOptionPane.PLAIN_MESSAGE, null, sellerMenu, null);
-                    switch (selection) {
-                        case "Create a new store":
-                            String storeName = JOptionPane.showInputDialog(null, "What is the name of the store you would like to create?",
-                                    "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                            ((Seller) user).createStore(storeName);
-                            addStoreToSellerFile(storeName, (Seller) user);
-                            break;
-                        case "Delete an existing store":
-                            String storeToRemove = JOptionPane.showInputDialog(null, "What is the name of the store you would like to delete?",
-                                    "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                            String username1 = JOptionPane.showInputDialog(null, "Please re-enter your username",
-                                    "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                            ArrayList<String> storeNames = Seller.readStoreNamesFromFile(username1);
-                            if (storeNames.contains(storeToRemove)) {
-                                storeNames.remove(storeToRemove);
-                                Seller.writeStoreNamesToFile(username, storeNames);  // rewrite stores to the file
-                            } else {
-                                JOptionPane.showMessageDialog(null, "Sorry this store does not exist",
-                                        "Marketplace", JOptionPane.ERROR_MESSAGE);
-                                return;
+                        if (decision.equals("Checkout $" + shoppingCartTotal((Customer) user))) {
+                            ((Customer) user).checkout();
+                            ((Customer) user).previouslyPurchasedFile();
+                            ((Customer) user).saveShoppingCart();
+                        }
+                        if (decision.equals("Remove Item")) {
+                            Product productToRemove;
+                            String pickIt = (String) JOptionPane.showInputDialog(null,
+                                    "Pick the item you want to remove", "",
+                                    JOptionPane.PLAIN_MESSAGE, null, values1, null);
+                            Product productToRemove1 = new Product("", "", "", 0, 0);
+                            for (Product product111 : ((Customer) user).getShoppingCart().getListOfProducts()) {
+                                if (product111.getProductName().equalsIgnoreCase(pickIt)) {
+                                    productToRemove1 = product111;
+                                    ((Customer) user).getShoppingCart().deleteProduct(productToRemove1);
+                                    ((Customer) user).previouslyPurchasedFile();
+                                    ((Customer) user).saveShoppingCart();
+                                    //saveProductsToFile();
+                                    break;
+                                }
                             }
+                            //((Customer) user).getShoppingCart().deleteProduct(productToRemove1);
+                            productToRemove1.setQuantity(productToRemove1.getQuantity() + productToRemove1.getQuantityInCart());
+                        }
+                        if (decision.equals("Go Back")) {
+                            ((Customer) user).saveShoppingCart();
+                        }
+                        break;
+                    case ("View purchase history"):
+                        String list = viewPreviousPurchases((Customer) user);
+                        String[] splitOnce = list.split(",");
+                        String item1 = (String) JOptionPane.showInputDialog(null,
+                                "The Purchase History (name then quantity)", "",
+                                JOptionPane.PLAIN_MESSAGE, null, splitOnce, null);
+                        break;
+                    case ("Export purchase history"):
+                        ((Customer) user).previouslyPurchasedFile();
+                        break;
+                    case ("Logout and Exit"):
+                        JOptionPane.showMessageDialog(null, "Thank you for using the marketplace!",
+                                "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
+                }
+        } else {
+            boolean valid = true;
+            while (valid) {
+                user = new Seller(username, password);
+                String[] sellerMenu = {"Create a new store", "Delete an existing store", "Edit a product", "Add product",
+                        "Delete product", "View Sales", "View number of products currently in customer shopping carts",
+                        "Import products to store(csv file)", "Export products to store(csv file)",
+                        "View products currently in each store", "Logout and Exit"};
+                String selection = (String) JOptionPane.showInputDialog(null, "What would you like to do", "Marketplace",
+                        JOptionPane.PLAIN_MESSAGE, null, sellerMenu, null);
+                switch (selection) {
+                    case "Create a new store":
+                        String storeName = JOptionPane.showInputDialog(null, "What is the name of the store you would like to create?",
+                                "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                        ((Seller) user).createStore(storeName);
+                        addStoreToSellerFile(storeName, (Seller) user);
+                        break;
+                    case "Delete an existing store":
+                        String storeToRemove = JOptionPane.showInputDialog(null, "What is the name of the store you would like to delete?",
+                                "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                        String username1 = JOptionPane.showInputDialog(null, "Please re-enter your username",
+                                "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                        ArrayList<String> storeNames = Seller.readStoreNamesFromFile(username1);
+                        if (storeNames.contains(storeToRemove)) {
+                            storeNames.remove(storeToRemove);
+                            Seller.writeStoreNamesToFile(username, storeNames);  // rewrite stores to the file
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Sorry this store does not exist",
+                                    "Marketplace", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
 
                             // Delete the corresponding store file
                             File storeFile1 = new File(storeToRemove + ".txt");
@@ -582,89 +585,77 @@ public class Marketplace extends JComponent implements Runnable{
                             }
                             break;
 
-                        case "Edit a product":
-                            String prodName = JOptionPane.showInputDialog(null, "Enter the name of the product you would like to edit:",
+                    case "Edit a product":
+                        String prodName = JOptionPane.showInputDialog(null, "Enter the name of the product you would like to edit:",
+                                "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                        String store1 = JOptionPane.showInputDialog(null, "Enter the store name that contains the product you would like to edit:",
+                                "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                        Seller.editProduct(prodName, store1);
+                        //saveProductsToFile();
+                        break;
+                    case "Add product":
+                        boolean isValidStore = true;
+                        do {
+                            String product = JOptionPane.showInputDialog(null, "What store would you like to add a product to?",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                            String store1 = JOptionPane.showInputDialog(null, "Enter the store name that contains the product you would like to edit:",
-                                    "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                            Seller.editProduct(prodName, store1);
-                            //saveProductsToFile();
-                            break;
-                        case "Add product":
-                            boolean isValidStore = true;
-                            do {
-                                String product = JOptionPane.showInputDialog(null, "What store would you like to add a product to?",
-                                        "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                                File storeName1 = new File(product + ".txt");
-                                if (!storeName1.exists()) {
-                                    JOptionPane.showMessageDialog(null, "Error this store does not exist",
-                                            "Marketplace", JOptionPane.ERROR_MESSAGE);
-                                    isValidStore = false;
-                                } else {
-                                    addProductToStore(product, (Seller) user);
-                                    saveProductsToFile();
-                                }
-                            } while (!isValidStore);
-                            break;
-                        case "Delete product":
-                            String store = JOptionPane.showInputDialog(null, "What EXACT store has the product you would like to delete?",
-                                    "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                            String removeProduct = JOptionPane.showInputDialog(null, "What is the EXACT name of the product you would like to delete?",
-                                    "Marketplace", JOptionPane.QUESTION_MESSAGE);
-
-                            // Read existing product names from the file
-                            ArrayList<String> productNames = Seller.readProductsFromFile(store);
-                            if (productNames.contains(removeProduct)) {
-                                productNames.remove(removeProduct);
-                                JOptionPane.showMessageDialog(null, "Product successfully removed!",
-                                        "Marketplace", JOptionPane.INFORMATION_MESSAGE);
-                                Seller.writeProductNamesToFile(store, productNames); // rewrite product names to file
+                            File storeName1 = new File(product + ".txt");
+                            if (!storeName1.exists()) {
+                                JOptionPane.showMessageDialog(null, "Error this store does not exist",
+                                        "Marketplace", JOptionPane.ERROR_MESSAGE);
+                                isValidStore = false;
                             } else {
-                                System.out.println("Sorry this product does not exist");
+                                addProductToStore(product, (Seller) user);
+                                saveProductsToFile();
                             }
-                            ArrayList<String> productName = Seller.readProductsFromFiles();
-                            if (productName.contains(removeProduct)) {
-                                productName.remove(removeProduct);
-                                Seller.writeProductNamesToFiles(productName);
-                            }
-                            break;
-                        case "View Sales":
-                            // NEED TO MAKE THIS METHOD BETTER, IS THERE SOMETHING IN CUSTOMER IMPLEMENTATION WE CAN USE?
-                            break;
-                        case "View number of products currently in customer shopping carts":
-                            break;
-                        case "Import products to store(csv file)":
-                            break;
-                        case "Export products to store(csv file)":
-                            break;
-                        case "View products currently in each store":
-                            break;
-                        case "Logout and Exit":
-                            JOptionPane.showMessageDialog(null, "Thank you for using the marketplace!",
+                        } while (!isValidStore);
+                        break;
+                    case "Delete product":
+                        String store = JOptionPane.showInputDialog(null, "What EXACT store has the product you would like to delete?",
+                                "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                        String removeProduct = JOptionPane.showInputDialog(null, "What is the EXACT name of the product you would like to delete?",
+                                "Marketplace", JOptionPane.QUESTION_MESSAGE);
+
+                        // Read existing product names from the file
+                        ArrayList<String> productNames = Seller.readProductsFromFile(store);
+                        if (productNames.contains(removeProduct)) {
+                            productNames.remove(removeProduct);
+                            JOptionPane.showMessageDialog(null, "Product successfully removed!",
                                     "Marketplace", JOptionPane.INFORMATION_MESSAGE);
-                            valid = false; 
-                            socket.close();
-                            break;
-                        default:
-                            JOptionPane.showMessageDialog(null, "Error", "Marketplace", JOptionPane.ERROR_MESSAGE);
-                    }
-
-                    //openSellerFrame((Seller) user);
-
+                            Seller.writeProductNamesToFile(store, productNames); // rewrite product names to file
+                        } else {
+                            System.out.println("Sorry this product does not exist");
+                        }
+                        ArrayList<String> productName = Seller.readProductsFromFiles();
+                        if (productName.contains(removeProduct)) {
+                            productName.remove(removeProduct);
+                            Seller.writeProductNamesToFiles(productName);
+                        }
+                        break;
+                    case "View Sales":
+                        // NEED TO MAKE THIS METHOD BETTER, IS THERE SOMETHING IN CUSTOMER IMPLEMENTATION WE CAN USE?
+                        break;
+                    case "View number of products currently in customer shopping carts":
+                        break;
+                    case "Import products to store(csv file)":
+                        break;
+                    case "Export products to store(csv file)":
+                        break;
+                    case "View products currently in each store":
+                        break;
+                    case "Logout and Exit":
+                        JOptionPane.showMessageDialog(null, "Thank you for using the marketplace!",
+                                "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+                        valid = false;
+                        break;
+                    default:
+                        JOptionPane.showMessageDialog(null, "Error", "Marketplace", JOptionPane.ERROR_MESSAGE);
                 }
+
+                //openSellerFrame((Seller) user);
+
             }
+        }
 
-    } catch (IOException ioe) {
-        ioe.printStackTrace();
     }
-}
 
 }
-
-//    private void openSellerFrame(Seller sellerInstance) {
-//        SwingUtilities.invokeLater(() -> {
-//            SellerFrame sellerFrame = new SellerFrame(sellerInstance);
-//            sellerFrame.setVisible(true);
-//            sellerFrame.setLocationRelativeTo(null);
-//        });
-//    }
