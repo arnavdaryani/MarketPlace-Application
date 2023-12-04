@@ -181,26 +181,6 @@ public class Marketplace extends JComponent implements Runnable{
         }
         return new ShoppingCart(prods);
     }
-
-     public static String viewPreviousPurchases(Customer customer) {
-        String previousProducts = "";
-        File previousPurchases = new File(customer.getUsername() + " _purchases.txt");
-        try (BufferedReader bfr = new BufferedReader(new FileReader(previousPurchases))) {
-            //bfr.readLine();
-            String line = bfr.readLine();
-            if (line == null || line.isEmpty()) {
-            }
-            while (line != null) {
-                if (!(line.contains("Previously Purchased Items: "))) {
-                    previousProducts = previousProducts + line + ",";
-                }
-                line = bfr.readLine();
-            }
-        } catch (IOException e) {
-            System.out.println("You have no previous purchases!");
-        }
-        return previousProducts;
-    }
     
     public static void addStoreToSellerFile(String storeName, Seller seller) {
         try (PrintWriter pw = new PrintWriter(new FileWriter(seller.getFileName(), true))) {
@@ -806,4 +786,3 @@ public class Marketplace extends JComponent implements Runnable{
     }
 
 }
-
