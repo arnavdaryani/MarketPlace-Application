@@ -115,32 +115,39 @@ public class MarketplaceServer {
                 PrintWriter userWriter = new PrintWriter(new FileWriter(f, true));
 
                 // Login or Signup process
-                String userChoice =  reader.readLine();
-                if (userChoice.equals("Login")) {
+                String command = reader.readLine();
+                String userInfo = null;
+                if (command.equals("Login")) {
+                    String username = reader.readLine();
+                    String password = reader.readLine();
+
                     boolean loggedIn = false;
-                    while (!loggedIn) {
-                        String username = reader.readLine();
-                        String password = reader.readLine();
-                        synchronized (gatekeeper) {
-                            String line = userReader.readLine();
-                            while (line != null) {
-                                String[] userData = line.split(",");
-                                String storedUsername = userData[0];
-                                String storedPassword = userData[1];
-                                if (username.equals(storedUsername) && password.equals(storedPassword)) {
-                                    loggedIn = true;
-                                    break;
-                                }
-                                line = userReader.readLine();
+                    try (BufferedReader bfr = new BufferedReader(new FileReader("users.txt"))) {
+                        String line;
+                        while ((line = bfr.readLine()) != null) {
+                            String[] parts = line.split(",");
+                            if (parts[0].equals(username) && parts[1].equals(password)) {
+                                loggedIn = true;
+                                userInfo = line;
+                                break;
                             }
-                            writer.write(line);
-                            writer.println();
-                            writer.flush();
                         }
-                        writer.write("true");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    if (loggedIn) {
+                        writer.write("user found");
+                        writer.println();
+                        writer.flush();
+                        writer.write(userInfo);
+                        writer.println();
+                        writer.flush();
+                    } else {
+                        writer.write("user not found");
                         writer.println();
                         writer.flush();
                     }
+                    
                 } else {
                     while (true) {
                         String username = reader.readLine();
@@ -163,11 +170,14 @@ public class MarketplaceServer {
                         break;
                     }
 
-                    String userInfo = reader.readLine();
-                    userWriter.write(userInfo);
+                    String userData = reader.readLine();
+                    userWriter.write(userData);
                     userWriter.println();
                     userWriter.flush(); 
                 }
+
+                userReader.close();
+                userWriter.close();
 
                 String username = reader.readLine();
                 String password = reader.readLine();
