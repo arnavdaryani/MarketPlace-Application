@@ -1,6 +1,5 @@
 SELLER TESTING:
 
-
 Test 1 - Create account 
 User launches application
 User selects the create an account button
