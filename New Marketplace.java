@@ -15,8 +15,12 @@ public class Marketplace extends JComponent implements Runnable{
     public static File p = new File("products.txt");
 
     public static void main(String[] args) {
-
-        SwingUtilities.invokeLater(new Marketplace());
+        Thread[] threads = new Thread[10];
+        /*for (int i = 0; i < 10; i++) {
+            threads[i] = new Thread(new Marketplace());
+            threads[i].start();
+        }*/
+        new Marketplace().run();
     }
 
     public static String createUser(String userType, BufferedReader reader, PrintWriter writer) {  
@@ -73,9 +77,8 @@ public class Marketplace extends JComponent implements Runnable{
     } 
 
     public static String login(BufferedReader reader, PrintWriter writer) {
-        String line = null;
         boolean loggedIn = false;
-
+        String line = null;
         do {
             try (BufferedReader bfr = new BufferedReader(new FileReader("users.txt"))) {
                 String username = JOptionPane.showInputDialog(null, "Enter your username:");
@@ -88,13 +91,14 @@ public class Marketplace extends JComponent implements Runnable{
                 writer.println();
                 writer.flush();
 
-                line = reader.readLine();
-                loggedIn = Boolean.parseBoolean(reader.readLine());
+                String userFound = reader.readLine();
 
-                if (!loggedIn) {
+                if (userFound.equals("user not found")) {
                     JOptionPane.showMessageDialog(null, "Either your username or password is wrong, " +
                             "or there is no account associated with this username!", "Marketplace", JOptionPane.ERROR_MESSAGE);
                 } else {
+                    loggedIn = true;
+                    line = reader.readLine();
                     JOptionPane.showMessageDialog(null,"Success! You are now logged in!",
                                     "Marketplace", JOptionPane.INFORMATION_MESSAGE);
                     break;
