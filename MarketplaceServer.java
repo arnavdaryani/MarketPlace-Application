@@ -11,7 +11,7 @@ public class MarketplaceServer {
     public static File f = new File("users.txt");
     public static File p = new File("products.txt");
     public static Object user;
-    public static Object gatekeeper;
+    public static Object gatekeeper = new Object();
 
     public static ArrayList<Product> readFromFile() {
         ArrayList<Product> availableProducts = new ArrayList<>();
@@ -344,7 +344,7 @@ public class MarketplaceServer {
                                         writer.write("Product not found");
                                         writer.println();
                                         writer.flush();
-                                }   else {
+                                    } else {
                                         writer.write("Product found");
                                         writer.println();
                                         writer.flush();
@@ -458,6 +458,7 @@ public class MarketplaceServer {
                                     ((Customer) user).saveShoppingCart();
                                     saveProductsToFile();
                                 }
+                                break;
                     }
                 }
             }
