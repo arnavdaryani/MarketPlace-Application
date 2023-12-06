@@ -162,7 +162,8 @@ public class Marketplace extends JComponent implements Runnable{
                 line = bfr.readLine();
             }
         } catch (IOException e) {
-            System.out.println("No products are currently listed!\n");
+            JOptionPane.showMessageDialog(null, "No products are currently listed!",
+                    "Marketplace", JOptionPane.ERROR_MESSAGE);
         }
         return availableProducts;
     }
@@ -189,6 +190,7 @@ public class Marketplace extends JComponent implements Runnable{
                     "Marketplace", JOptionPane.ERROR_MESSAGE);
         }
     }
+
     public static void saveProductsToFile() {
         try (PrintWriter pw = new PrintWriter(new FileWriter(p, true))) {
             for (Product prod : products) {
@@ -212,7 +214,8 @@ public class Marketplace extends JComponent implements Runnable{
     public static ArrayList<Product> searchForItemInStore(ArrayList<Product> firstList, String itemSearch) {
         ArrayList<Product> searchResults = new ArrayList<>();
         if (firstList.isEmpty()) {
-            System.out.println("There are no products to search from!");
+            JOptionPane.showMessageDialog(null, "There are no items to search from!",
+                    "Marketplace", JOptionPane.ERROR_MESSAGE);
         } else {
             for (Product prod : products) {
                 if (prod.getProductName().contains(itemSearch) || prod.getDescription().contains(itemSearch)
@@ -474,7 +477,7 @@ public class Marketplace extends JComponent implements Runnable{
                         writer.write("View shopping cart");
                         writer.println();
                         writer.flush();
-                        int total = Integer.parseInt(reader.readLine());
+                        double total = Double.parseDouble(reader.readLine());
                         String[] values2 = {"Checkout $" + total, "Remove Item", "Go Back"};
                         length = Integer.parseInt(reader.readLine());
                         String[] values1 = new String[length];
