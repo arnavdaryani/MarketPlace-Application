@@ -345,12 +345,18 @@ public class Marketplace extends JComponent implements Runnable {
                             String[] selectionMenu = {"Search for a product by store name", "Search all products"};
                             String selectionSearch = (String) JOptionPane.showInputDialog(null, "Pick an Option Below", "Marketplace",
                                     JOptionPane.PLAIN_MESSAGE, null, selectionMenu, null);
+                            if (selectionSearch == null) {
+                                return;
+                            }
                             writer.write(selectionSearch);
                             writer.println();
                             writer.flush();
                             if (selectionSearch.equals("Search for a product by store name")) {
                                 String nameOfIt = JOptionPane.showInputDialog(null, "What is the EXACT name of the store?",
                                         "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                                if (nameOfIt == null) {
+                                    return;
+                                }
                                 writer.write(nameOfIt);
                                 writer.println();
                                 writer.flush();
@@ -359,15 +365,18 @@ public class Marketplace extends JComponent implements Runnable {
                                     for (int i = 0; i < storeProducts.length; i++) {
                                         storeProducts[i] = reader.readLine();
                                     }
-                                    JOptionPane.showInputDialog(null, "Products in the store", "Marketplace",
+                                    String listChoice = (String)JOptionPane.showInputDialog(null, "Products in the store", "Marketplace",
                                             JOptionPane.PLAIN_MESSAGE, null, storeProducts, null);
+                                    if (listChoice == null) {
+                                        return;
+                                    }
                                 } else {
                                     JOptionPane.showMessageDialog(null, "There is no store with this name",
                                             "Marketplace", JOptionPane.ERROR_MESSAGE);
                                 }
                             } else {
                                 String searchTerm = JOptionPane.showInputDialog(null, "What would you like to search",
-                                        "Marketpldace", JOptionPane.QUESTION_MESSAGE);
+                                        "Marketplace", JOptionPane.QUESTION_MESSAGE);
                                 writer.write(searchTerm);
                                 writer.println();
                                 writer.flush();
