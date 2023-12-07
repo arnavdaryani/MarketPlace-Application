@@ -365,9 +365,9 @@ public class Marketplace extends JComponent implements Runnable {
                                     for (int i = 0; i < storeProducts.length; i++) {
                                         storeProducts[i] = reader.readLine();
                                     }
-                                    String listChoice = (String)JOptionPane.showInputDialog(null, "Products in the store", "Marketplace",
+                                    String listOfThem = (String)JOptionPane.showInputDialog(null, "Products in the store", "Marketplace",
                                             JOptionPane.PLAIN_MESSAGE, null, storeProducts, null);
-                                    if (listChoice == null) {
+                                    if (listOfThem == null) {
                                         return;
                                     }
                                 } else {
@@ -377,6 +377,9 @@ public class Marketplace extends JComponent implements Runnable {
                             } else {
                                 String searchTerm = JOptionPane.showInputDialog(null, "What would you like to search",
                                         "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                                if (searchTerm == null) {
+                                    return;
+                                }
                                 writer.write(searchTerm);
                                 writer.println();
                                 writer.flush();
@@ -390,8 +393,11 @@ public class Marketplace extends JComponent implements Runnable {
                                     for (int i = 0; i < length; i++) {
                                         productToDisplay[i] = reader.readLine();
                                     }
-                                    JOptionPane.showInputDialog(null, "Products containing the search term", "Marketplace",
+                                    String canceledMaybe = (String)JOptionPane.showInputDialog(null, "Products containing the search term", "Marketplace",
                                             JOptionPane.PLAIN_MESSAGE, null, productToDisplay, null);
+                                    if (canceledMaybe == null) {
+                                        return;
+                                    }
                                 }
                             }
                             break;
