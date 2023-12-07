@@ -152,7 +152,7 @@ public class Product implements Comparable<Product> {
         return ("Name: " + productName + "\nStore Name: " + storeName + "\nDescription: " + description + "\nPrice: " + price + "\nQuantity Available: " + quantity);
     }
     public String toString() {
-        return("Name: " + productName + "| Store Name: " + storeName + "| Price: " + price + "\n");
+        return("Name: " + productName + " Store Name: " + storeName + " Price: " + price + "\n");
     }
 
 }
