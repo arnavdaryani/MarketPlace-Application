@@ -609,7 +609,7 @@ public class Marketplace extends JComponent implements Runnable {
                             }
                             break;
 
-                        case "Add Product":
+                        case "Add product":
                             boolean isValidStore = true;
                             do {
                                 String product = JOptionPane.showInputDialog(null, "What store would you like to add a product to?",
@@ -650,7 +650,7 @@ public class Marketplace extends JComponent implements Runnable {
                             } while (!isValidStore);
                             break;
 
-                        case "Delete Product":
+                        case "Delete product":
                             String store = JOptionPane.showInputDialog(null, "What EXACT store has the product you would like to delete?",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
                             writer.write(store);
