@@ -84,7 +84,9 @@ public class Marketplace extends JComponent implements Runnable {
                     return null;
                 }
                 String password = JOptionPane.showInputDialog(null, "Enter your password:");
-
+                if (password == null) {
+                    return null;
+                }
                 writer.write(username);
                 writer.println();
                 writer.flush();
@@ -331,6 +333,9 @@ public class Marketplace extends JComponent implements Runnable {
                             "Export purchase history", "Logout and Exit"};
                     String selection = (String) JOptionPane.showInputDialog(null, "Pick Below", "Marketplace",
                             JOptionPane.PLAIN_MESSAGE, null, customerMenu, null);
+                    if (selection == null) {
+                        return;
+                    }
                     switch (selection) {
                         case "Search for a product":
                             writer.write("Search for a product");
