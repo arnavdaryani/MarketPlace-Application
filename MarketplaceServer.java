@@ -2,8 +2,6 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
-import javax.swing.JOptionPane;
-
 public class MarketplaceServer {
 
     public static ArrayList<Product> products = new ArrayList<>();
@@ -284,6 +282,21 @@ public class MarketplaceServer {
                                         writer.write(i);
                                         writer.flush();
                                     }
+                                    String productChoice = reader.readLine();
+                                    System.out.println(productChoice);
+                                    String[] parts = productChoice.split("\\|");
+                                    String itemName = parts[0].split(":")[1].trim();
+                                    String storeName = parts[1].split(":")[1].trim();
+                                    for (Product prod : products) {
+                                        if (prod.getProductName().equalsIgnoreCase(itemName)
+                                                && prod.getStoreName().equalsIgnoreCase(storeName)) {
+                                                    String productPage = prod.returnProductPage();
+                                                    writer.write(productPage);
+                                                    writer.println();
+                                                    writer.flush();
+                                                    break;
+                                        }
+                                    }
 
                                 } else {
                                     writer.write("Store not found");
@@ -321,6 +334,21 @@ public class MarketplaceServer {
                                         writer.write(j);
                                         writer.flush();
                                     }
+                                    String productChoice = reader.readLine();
+                                    System.out.println(productChoice);
+                                    String[] parts = productChoice.split("\\|");
+                                    String itemName = parts[0].split(":")[1].trim();
+                                    String storeName = parts[1].split(":")[1].trim();
+                                    for (Product prod : products) {
+                                        if (prod.getProductName().equalsIgnoreCase(itemName)
+                                                && prod.getStoreName().equalsIgnoreCase(storeName)) {
+                                                    String productPage = prod.returnProductPage();
+                                                    writer.write(productPage);
+                                                    writer.println();
+                                                    writer.flush();
+                                                    break;
+                                        }
+                                    }
                                 }
                             }
                             break;
@@ -343,6 +371,21 @@ public class MarketplaceServer {
                                 writer.write(prod);
                                 writer.flush();
                             }
+                            String productChoice = reader.readLine();
+                            System.out.println(productChoice);
+                            String[] parts = productChoice.split("\\|");
+                            String itemName = parts[0].split(":")[1].trim();
+                            String storeName = parts[1].split(":")[1].trim();
+                            for (Product prod : products) {
+                                if (prod.getProductName().equalsIgnoreCase(itemName)
+                                        && prod.getStoreName().equalsIgnoreCase(storeName)) {
+                                            String productPage = prod.returnProductPage();
+                                            writer.write(productPage);
+                                            writer.println();
+                                            writer.flush();
+                                            break;
+                                }
+                            }     
                             break;
                         case "Sort products by quantity available":
                             String[] sortedProductsQuantity;
@@ -363,10 +406,25 @@ public class MarketplaceServer {
                                 writer.write(prod);
                                 writer.flush();
                             }
+                            productChoice = reader.readLine();
+                            System.out.println(productChoice);
+                            parts = productChoice.split("\\|");
+                            itemName = parts[0].split(":")[1].trim();
+                            storeName = parts[1].split(":")[1].trim();
+                            for (Product prod : products) {
+                                if (prod.getProductName().equalsIgnoreCase(itemName)
+                                        && prod.getStoreName().equalsIgnoreCase(storeName)) {
+                                            String productPage = prod.returnProductPage();
+                                            writer.write(productPage);
+                                            writer.println();
+                                            writer.flush();
+                                            break;
+                                }
+                            }     
                             break;
                         case "View product page to purchase":
                             String productName = reader.readLine();
-                            String storeName = reader.readLine();
+                            storeName = reader.readLine();
                             synchronized (gatekeeper) {
                                 Product product = viewItemPage(productName, storeName);
                                 if (product == null) {
@@ -570,8 +628,7 @@ public class MarketplaceServer {
                         case "View Sales":
                             String sales = reader.readLine();
                             double revenue = 0;
-                            try {
-                                BufferedReader bfr = new BufferedReader(new FileReader(p));
+                            try (BufferedReader bfr = new BufferedReader(new FileReader(p))){
                                 String line;
                                 while ((line = bfr.readLine()) != null) {
                                     String[] contents = line.split(",");
@@ -600,6 +657,7 @@ public class MarketplaceServer {
                                 while ((line = bfr.readLine()) != null) {
                                     System.out.println(line);
                                 }
+                                bfr.close();
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 writer.write("Error");
@@ -630,6 +688,7 @@ public class MarketplaceServer {
                                 while ((line = bfr.readLine()) != null) {
                                     System.out.println(line);
                                 }
+                                bfr.close();
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
