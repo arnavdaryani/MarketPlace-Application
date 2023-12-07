@@ -662,6 +662,7 @@ public class Marketplace extends JComponent implements Runnable {
                                     return;
                                 }
                                 File storeName1 = new File(product + ".txt");
+                                System.out.println("reach");
                                 if (!storeName1.exists()) {
                                     JOptionPane.showMessageDialog(null, "Error this store does not exist",
                                             "Marketplace", JOptionPane.ERROR_MESSAGE);
@@ -670,6 +671,7 @@ public class Marketplace extends JComponent implements Runnable {
                                     writer.println();
                                     writer.flush();
                                 } else {
+                                    System.out.println("reach2");
                                     writer.write("E");
                                     writer.println();
                                     writer.flush();
@@ -680,6 +682,7 @@ public class Marketplace extends JComponent implements Runnable {
                                     if (m.equals("Error")) {
                                         JOptionPane.showMessageDialog(null, "Error occurred while adding the product.",
                                                 "Marketplace", JOptionPane.ERROR_MESSAGE);
+                                        break;
                                     } else {
                                         String productDetails = JOptionPane.showInputDialog(null, "Enter product details separated by commas (name,store name,description,price,quantity):",
                                                 "Marketplace", JOptionPane.QUESTION_MESSAGE);
