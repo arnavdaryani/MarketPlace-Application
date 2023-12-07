@@ -73,7 +73,7 @@ public class MarketplaceServer {
     }
 
     public static void saveProductsToFile() {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(p))) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(p, true))) {
             for (Product prod : products) {
                 pw.println(prod.listInFile());
                 pw.flush();
@@ -588,7 +588,7 @@ public class MarketplaceServer {
                             //saveProductsToFile();
                             break;
 
-                        case "Add Product":
+                        case "Add product":
                             boolean isValid = true;
                             do {
                                 String m = reader.readLine();
@@ -604,7 +604,7 @@ public class MarketplaceServer {
                             } while (!isValid);
                             break;
 
-                        case "Delete Product":
+                        case "Delete product":
                             String store = reader.readLine();
                             String removeProduct = reader.readLine();
                             ArrayList<String> productNames = Seller.readProductsFromFile(store);
