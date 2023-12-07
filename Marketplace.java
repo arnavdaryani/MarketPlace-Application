@@ -439,8 +439,14 @@ public class Marketplace extends JComponent implements Runnable {
                             writer.flush();
                             String nameOfIt = JOptionPane.showInputDialog(null, "Enter the EXACT name of the product.",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                            if (nameOfIt == null) {
+                                return;
+                            }
                             String nameOfIt1 = JOptionPane.showInputDialog(null, "Enter the EXACT store name of the product.",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                            if (nameOfIt1 == null) {
+                                return;
+                            }
                             writer.write(nameOfIt);
                             writer.println();
                             writer.flush();
@@ -456,6 +462,9 @@ public class Marketplace extends JComponent implements Runnable {
                             String page1 = reader.readLine();
                             String selection1 = (String) JOptionPane.showInputDialog(null, page1, "Marketplace",
                                     JOptionPane.PLAIN_MESSAGE, null, cartOption, null);
+                            if (selection1 == null) {
+                                return;
+                            }
                             writer.write(selection1);
                             writer.println();
                             writer.flush();
@@ -495,9 +504,12 @@ public class Marketplace extends JComponent implements Runnable {
                             for (int i = 0; i < length; i++) {
                                 values1[i] = reader.readLine();
                             }
-                            JOptionPane.showInputDialog(null,
+                            String cart1 = (String)JOptionPane.showInputDialog(null,
                                     "The Shopping Cart", "",
                                     JOptionPane.PLAIN_MESSAGE, null, values1, null);
+                            if (cart1 == null) {
+                                return;
+                            }
                             String decision = (String) JOptionPane.showInputDialog(null,
                                     "Options", "",
                                     JOptionPane.PLAIN_MESSAGE, null, values2, null);
@@ -511,6 +523,9 @@ public class Marketplace extends JComponent implements Runnable {
                                 String pickIt = (String) JOptionPane.showInputDialog(null,
                                         "Pick the item you want to remove", "",
                                         JOptionPane.PLAIN_MESSAGE, null, values1, null);
+                                if (pickIt == null) {
+                                    return;
+                                }
                                 pickIt = pickIt.substring(0, pickIt.indexOf(" --"));
                                 writer.write(pickIt);
                                 writer.println();
