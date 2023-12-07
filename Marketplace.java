@@ -411,8 +411,11 @@ public class Marketplace extends JComponent implements Runnable {
                             for (int i = 0; i < length; i++) {
                                 sortedProducts[i] = reader.readLine();
                             }
-                            JOptionPane.showInputDialog(null, "Sorted by Price", "Marketplace",
+                            String checkAgain1 = (String)JOptionPane.showInputDialog(null, "Sorted by Price", "Marketplace",
                                     JOptionPane.PLAIN_MESSAGE, null, sortedProducts, null);
+                            if (checkAgain1 == null) {
+                                return;
+                            }
                             break;
                         case "Sort products by quantity available":
                             writer.write("Sort products by quantity available");
@@ -424,8 +427,11 @@ public class Marketplace extends JComponent implements Runnable {
                             for (int i = 0; i < length; i++) {
                                 sortedProducts[i] = reader.readLine();
                             }
-                            JOptionPane.showInputDialog(null, "Sorted by Quantity Available", "Marketplace",
+                            String check = (String)JOptionPane.showInputDialog(null, "Sorted by Quantity Available", "Marketplace",
                                     JOptionPane.PLAIN_MESSAGE, null, sortedProducts, null);
+                            if (check == null) {
+                                return;
+                            }
                             break;
                         case "View product page to purchase":
                             writer.write("View product page to purchase");
