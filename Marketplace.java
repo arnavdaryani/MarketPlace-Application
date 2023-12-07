@@ -539,15 +539,17 @@ public class Marketplace extends JComponent implements Runnable {
                             writer.write("View purchase history");
                             writer.println();
                             writer.flush();
-
                             length = Integer.parseInt(reader.readLine());
                             String[] splitOnce = new String[length];
                             for (int i = 0; i < length; i++) {
                                 splitOnce[i] = reader.readLine();
                             }
-                            JOptionPane.showInputDialog(null,
+                            String purchaseH = (String)JOptionPane.showInputDialog(null,
                                     "The Purchase History (name then quantity)", "",
                                     JOptionPane.PLAIN_MESSAGE, null, splitOnce, null);
+                            if (purchaseH == null) {
+                                return;
+                            }
                             break;
                         case "Export purchase history":
                             writer.write("Export purchase history");
@@ -555,7 +557,7 @@ public class Marketplace extends JComponent implements Runnable {
                             writer.flush();
 
                             JOptionPane.showMessageDialog(null,
-                                    "Your purchase history has been exported to the file <your username> _purchases.txt!",
+                                    "Your purchase history has been exported to the file <" + username + ">_purchases.txt!",
                                     "Marketplace", JOptionPane.INFORMATION_MESSAGE);
                             break;
                         case ("Logout and Exit"):
@@ -675,6 +677,9 @@ public class Marketplace extends JComponent implements Runnable {
                                     } else {
                                         String productDetails = JOptionPane.showInputDialog(null, "Enter product details separated by commas (name,store name,description,price,quantity):",
                                                 "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                                        if (productDetails == null) {
+                                            return;
+                                        }
                                         writer.write(productDetails);
                                         writer.println();
                                         writer.flush();
