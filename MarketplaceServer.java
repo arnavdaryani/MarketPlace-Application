@@ -20,7 +20,8 @@ public class MarketplaceServer {
             while (line != null) {
                 String[] productInfo = line.split(",");
                 Product product = new Product(productInfo[0], productInfo[1], productInfo[2],
-                        Double.parseDouble(productInfo[3]), Integer.parseInt(productInfo[4]));
+                        Double.parseDouble(productInfo[3]), Integer.parseInt(productInfo[4]),
+                        Integer.parseInt(productInfo[5]));
                 availableProducts.add(product);
                 line = bfr.readLine();
             }
@@ -74,9 +75,10 @@ public class MarketplaceServer {
     }
 
     public static void saveProductsToFile() {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(p, true))) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(p))) {
             for (Product prod : products) {
-                pw.println(prod.listInShoppingCart());
+                pw.println(prod.listInFile());
+                pw.println();
                 pw.flush();
             }
         } catch (IOException e) {
@@ -407,6 +409,13 @@ public class MarketplaceServer {
                                 String decision = reader.readLine();
                                 if (decision.equals("Checkout $" + shoppingCartTotal((Customer) user))) {
                                     synchronized (gatekeeper) {
+                                        for (Product prod : ((Customer) user).getShoppingCart().getListOfProducts()) {
+                                            for (Product product : products) {
+                                                if (prod.equals(product)) {
+                                                    product.setQuantitySold(product.getQuantitySold() + prod.getQuantity());
+                                                }
+                                            }
+                                        }
                                         ((Customer) user).checkout();
                                         ((Customer) user).previouslyPurchasedFile();
                                         ((Customer) user).saveShoppingCart();
