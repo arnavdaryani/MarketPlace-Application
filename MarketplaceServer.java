@@ -131,7 +131,8 @@ public class MarketplaceServer {
                 String description = detailsArray[2];
                 double price = Double.parseDouble(detailsArray[3]);
                 int quantity = Integer.parseInt(detailsArray[4]);
-                Product newProduct = new Product(name, storeNames, description, price, quantity);
+                int quantitySold = 0;
+                Product newProduct = new Product(name, storeNames, description, price, quantity, quantitySold);
                 products.add(newProduct);
             }
         } catch (IOException e) {
