@@ -78,7 +78,6 @@ public class MarketplaceServer {
         try (PrintWriter pw = new PrintWriter(new FileWriter(p))) {
             for (Product prod : products) {
                 pw.println(prod.listInFile());
-                pw.println();
                 pw.flush();
             }
         } catch (IOException e) {
@@ -198,11 +197,11 @@ public class MarketplaceServer {
                     // Customer processing
                     while (true) {
                         String selection = reader.readLine();
+                        synchronized (gatekeeper) {
+                            products = readFromFile();
+                        }
                         switch (selection) {
                             case "Search for a product":
-                                synchronized (gatekeeper) {
-                                    products = readFromFile();
-                                }
                                 String selectionSearch = reader.readLine();
                                 if (selectionSearch.equals("Search for a product by store name")) {
                                     String nameOfIt = reader.readLine();
@@ -286,9 +285,6 @@ public class MarketplaceServer {
                                         }
                                     }
                                 }
-                                synchronized (gatekeeper) {
-                                    saveProductsToFile();
-                                }
                                 break;
                             case "Sort products by price":
                                 String[] sortedProducts;
@@ -307,34 +303,27 @@ public class MarketplaceServer {
                                 writer.flush();
                                 for (String prod : sortedProducts) {
                                     writer.write(prod);
-                                    writer.println();
                                     writer.flush();
-                                }
-                                synchronized (gatekeeper) {
-                                    saveProductsToFile();
                                 }
                                 break;
                             case "Sort products by quantity available":
+                                String[] sortedProductsQuantity;
                                 synchronized (gatekeeper) {
                                     products = readFromFile();
                                     products.sort(new SortByQuantity());
-                                    sortedProducts = new String[products.size()];
+                                    sortedProductsQuantity = new String[products.size()];
                                     int i = 0;
                                     for (Product prod : products) {
-                                        sortedProducts[i] = prod.toString();
+                                        sortedProductsQuantity[i] = prod.toString();
                                         i++;
                                     }
                                 }
-                                writer.write(String.valueOf(sortedProducts.length));
+                                writer.write(String.valueOf(sortedProductsQuantity.length));
                                 writer.println();
                                 writer.flush();
-                                for (String prod : sortedProducts) {
+                                for (String prod : sortedProductsQuantity) {
                                     writer.write(prod);
-                                    writer.println();
                                     writer.flush();
-                                }
-                                synchronized (gatekeeper) {
-                                    saveProductsToFile();
                                 }
                                 break;
                             case "View product page to purchase":
@@ -369,14 +358,12 @@ public class MarketplaceServer {
                                                 synchronized (gatekeeper) {
                                                     ((Customer) user).getShoppingCart().addProduct(product, quantity);
                                                     ((Customer) user).saveShoppingCart();
+                                                    saveProductsToFile();
                                                 }
                                         } else {
                                             continue;
                                         }
                                     }
-                                }
-                                synchronized (gatekeeper) {
-                                    saveProductsToFile();
                                 }
                                 break;
                             case "View shopping cart":
@@ -388,7 +375,8 @@ public class MarketplaceServer {
                                 }
                                 String[] values1 = new String[list11.size()];
                                 for (Product iii : list11) {
-                                    productString = iii.getProductName();
+                                    productString = iii.getProductName() + " -- " + iii.getQuantity() + " x " + iii.getPrice()
+                                    + " = " + iii.getPrice() * iii.getQuantity();
                                     values1[iiii] = productString;
                                     iiii++;
                                 }
@@ -423,13 +411,18 @@ public class MarketplaceServer {
                                 }
                                 if (decision.equals("Remove Item")) {
                                     String pickIt = reader.readLine();
-                                    Product productToRemove1 = new Product(pickIt, "", "", 0, 0);
                                     synchronized (gatekeeper) {
-                                        for (Product product111 : ((Customer) user).getShoppingCart().getListOfProducts()) {
-                                            if (product111.getProductName().equalsIgnoreCase(pickIt)) {
-                                                productToRemove1 = product111;
-                                                ((Customer) user).getShoppingCart().deleteProduct(productToRemove1);
-                                                ((Customer) user).previouslyPurchasedFile();
+                                        for (Product product : ((Customer) user).getShoppingCart().getListOfProducts()) {
+                                            if (product.getProductName().equalsIgnoreCase(pickIt)) {
+                                                int quantity = product.getQuantity();
+                                                for (Product prod : products) {
+                                                    if (prod.equals(product)) {
+                                                        prod.setQuantity(prod.getQuantity() + quantity);
+                                                        break;
+                                                    }
+                                                }
+                                                saveProductsToFile();
+                                                ((Customer) user).getShoppingCart().deleteProduct(product);
                                                 ((Customer) user).saveShoppingCart();
                                                 break;
                                             }
@@ -437,9 +430,6 @@ public class MarketplaceServer {
                                     }
                                 }
                                 if (decision.equals("Go Back")) {
-                                    synchronized (gatekeeper) {
-                                        ((Customer) user).saveShoppingCart();
-                                    }
                                     continue;
                                 }
                                 break;
