@@ -576,7 +576,10 @@ public class MarketplaceServer {
                                 ArrayList<String> storeNames = Seller.readStoreNamesFromFile(username1);
                                 if (storeNames.contains(storeToRemove)) {
                                     storeNames.remove(storeToRemove);
-                                    Seller.writeStoreNamesToFile(username, storeNames);  // rewrite stores to the file
+                                    Seller.writeStoreNamesToFile(username, storeNames);// rewrite stores to the file
+                                    writer.write("D");
+                                    writer.println();
+                                    writer.flush();
                                 } else {
                                     writer.write("DNE");
                                     writer.println();
