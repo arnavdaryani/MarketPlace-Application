@@ -105,6 +105,26 @@ public class MarketplaceServer {
         return previousProducts;
     }
 
+    public static ArrayList<Product> searchFProducts(String searchTerm) {
+        ArrayList<Product> correctOnes = new ArrayList<Product>();
+        for (Product lookInside : products) {
+            if (lookInside.getProductName().contains(searchTerm)) {
+                correctOnes.add(lookInside);
+            }
+        }
+        return correctOnes;
+    }
+    
+    public static ArrayList<Product> searchFProductsByStore(String searchTerm) {
+        ArrayList<Product> correctOnes = new ArrayList<Product>();
+        for (Product lookInside : products) {
+            if (lookInside.getStoreName().contains(searchTerm)) {
+                correctOnes.add(lookInside);
+            }
+        }
+        return correctOnes;
+    }
+
     public static void main(String[] args) {
             try {
                 ServerSocket ss = new ServerSocket(PORT);
@@ -202,52 +222,32 @@ public class MarketplaceServer {
                         }
                         switch (selection) {
                             case "Search for a product":
-                                String selectionSearch = reader.readLine();
-                                if (selectionSearch.equals("Search for a product by store name")) {
+                                if (reader.readLine().equals("Search for a product by store name")) {
                                     String nameOfIt = reader.readLine();
-                                    ArrayList<Product> storeItems = Customer.readProductsFullyFromFile(nameOfIt);
-                                    if (storeItems != null) {
+                                    ArrayList<Product> storeItems = new ArrayList<>();
+                                    synchronized (gatekeeper) {
+                                        storeItems = searchFProductsByStore(nameOfIt);
+                                    }
+                                    if (storeItems.size() > 0) {
                                         writer.write("Store found");
                                         writer.println();  
                                         writer.flush();
-                                        String[] newAgain = new String[storeItems.size()];
+                                        String[] storeProducts = new String[storeItems.size()];
                                         int go = 0;
                                         for (Product prod : storeItems) {
-                                            newAgain[go] = prod.toString();
+                                            storeProducts[go] = prod.toString();
                                             go++;
                                         }
-                                        String searchTerm = reader.readLine();
-                                        ArrayList<String> correctOnes = new ArrayList<String>();
-                                        for (Product lookInside : storeItems) {
-                                            if (lookInside.getProductName().contains(searchTerm)) {
-                                                correctOnes.add(lookInside.toString());
-                                            }
-                                        }
-                                        String[] productToDisplay = new String[correctOnes.size()];
-                                        int counters = 0;
-                                        for (String i : correctOnes) {
-                                            productToDisplay[counters] = i;
-                                            counters++;
-                                        }
-                                        if (productToDisplay.length == 0) {
-                                            writer.write("Products not found");
-                                            writer.println();
+                                        writer.write(String.valueOf(storeProducts.length));
+                                        writer.println();
+                                        writer.flush();
+                                        for (String i : storeProducts) {
+                                            writer.write(i);
                                             writer.flush();
-                                        } else {
-                                            writer.write("Products found");
-                                            writer.println();
-                                            writer.flush();
-                                            writer.write(String.valueOf(productToDisplay.length));
-                                            writer.println();
-                                            writer.flush();
-                                            for (String j : productToDisplay) {
-                                                writer.write(j);
-                                                writer.println();
-                                                writer.flush();
-                                            }
                                         }
+                                        
                                     } else {
-                                        writer.write("false");
+                                        writer.write("Store not found");
                                         writer.println();
                                         writer.flush();
                                     }
@@ -280,7 +280,6 @@ public class MarketplaceServer {
                                         writer.flush();
                                         for (String j : productToDisplay) {
                                             writer.write(j);
-                                            writer.println();
                                             writer.flush();
                                         }
                                     }
