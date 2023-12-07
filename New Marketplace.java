@@ -350,38 +350,23 @@ public class Marketplace extends JComponent implements Runnable{
                             writer.println();
                             writer.flush();
                             if (reader.readLine().equals("Store found")) {
-                                String searchTerm = JOptionPane.showInputDialog(null, "What would you like to search",
-                                        "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                                writer.write(searchTerm);
-                                writer.println();
-                                writer.flush();
-                                if (reader.readLine().equals("Products not found")) {
-                                    JOptionPane.showMessageDialog(null, "No products contained that search term!",
-                                            "Marketplace", JOptionPane.ERROR_MESSAGE);
-                                } else {
-                                    int length = Integer.parseInt(reader.readLine());
-                                    String[] productToDisplay = new String[length];
-                                    for (int i = 0; i < length; i++) {
-                                        productToDisplay[i] = reader.readLine();
-                                    }
-                                    JOptionPane.showInputDialog(null, "Products containing the search term", "Marketplace",
-                                            JOptionPane.PLAIN_MESSAGE, null, productToDisplay, null);
+                                String[] storeProducts = new String[Integer.parseInt(reader.readLine())];
+                                for (int i = 0; i < storeProducts.length; i++) {
+                                    storeProducts[i] = reader.readLine();
                                 }
+                                JOptionPane.showInputDialog(null, "Products in the store", "Marketplace",
+                                        JOptionPane.PLAIN_MESSAGE, null, storeProducts, null); 
                             } else {
                                 JOptionPane.showMessageDialog(null, "There is no store with this name",
                                         "Marketplace", JOptionPane.ERROR_MESSAGE);
                             }
                         } else {
-                            writer.write("Search all products");
-                            writer.println();
-                            writer.flush();
                             String searchTerm = JOptionPane.showInputDialog(null, "What would you like to search",
-                                    "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                                    "Marketpldace", JOptionPane.QUESTION_MESSAGE);
                             writer.write(searchTerm);
                             writer.println();
                             writer.flush();
 
-                            // Check if the productToDisplay array is empty before displaying
                             if (reader.readLine().equals("Products not found")) {
                                 JOptionPane.showMessageDialog(null, "No products contained that search term!",
                                         "Marketplace", JOptionPane.ERROR_MESSAGE);
