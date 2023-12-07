@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class MarketplaceServer {
 
     public static ArrayList<Product> products = new ArrayList<>();
-    public static final int PORT = 5000;
+    public static final int PORT = 4242;
     public static File f = new File("users.txt");
     public static File p = new File("products.txt");
     public static Object user;
