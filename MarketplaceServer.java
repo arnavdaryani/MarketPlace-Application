@@ -291,11 +291,11 @@ public class MarketplaceServer {
                                     for (Product prod : products) {
                                         if (prod.getProductName().equalsIgnoreCase(itemName)
                                                 && prod.getStoreName().equalsIgnoreCase(storeName)) {
-                                                    String productPage = prod.returnProductPage();
-                                                    writer.write(productPage);
-                                                    writer.println();
-                                                    writer.flush();
-                                                    break;
+                                            String productPage = prod.returnProductPage();
+                                            writer.write(productPage);
+                                            writer.println();
+                                            writer.flush();
+                                            break;
                                         }
                                     }
 
@@ -343,11 +343,11 @@ public class MarketplaceServer {
                                     for (Product prod : products) {
                                         if (prod.getProductName().equalsIgnoreCase(itemName)
                                                 && prod.getStoreName().equalsIgnoreCase(storeName)) {
-                                                    String productPage = prod.returnProductPage();
-                                                    writer.write(productPage);
-                                                    writer.println();
-                                                    writer.flush();
-                                                    break;
+                                            String productPage = prod.returnProductPage();
+                                            writer.write(productPage);
+                                            writer.println();
+                                            writer.flush();
+                                            break;
                                         }
                                     }
                                 }
@@ -380,13 +380,13 @@ public class MarketplaceServer {
                             for (Product prod : products) {
                                 if (prod.getProductName().equalsIgnoreCase(itemName)
                                         && prod.getStoreName().equalsIgnoreCase(storeName)) {
-                                            String productPage = prod.returnProductPage();
-                                            writer.write(productPage);
-                                            writer.println();
-                                            writer.flush();
-                                            break;
+                                    String productPage = prod.returnProductPage();
+                                    writer.write(productPage);
+                                    writer.println();
+                                    writer.flush();
+                                    break;
                                 }
-                            }     
+                            }
                             break;
                         case "Sort products by quantity available":
                             String[] sortedProductsQuantity;
@@ -415,13 +415,13 @@ public class MarketplaceServer {
                             for (Product prod : products) {
                                 if (prod.getProductName().equalsIgnoreCase(itemName)
                                         && prod.getStoreName().equalsIgnoreCase(storeName)) {
-                                            String productPage = prod.returnProductPage();
-                                            writer.write(productPage);
-                                            writer.println();
-                                            writer.flush();
-                                            break;
+                                    String productPage = prod.returnProductPage();
+                                    writer.write(productPage);
+                                    writer.println();
+                                    writer.flush();
+                                    break;
                                 }
-                            }     
+                            }
                             break;
                         case "View product page to purchase":
                             String productName = reader.readLine();
@@ -563,140 +563,163 @@ public class MarketplaceServer {
                     String selection = reader.readLine();
                     switch (selection) {
                         case "Create a new store":
-                            String storeName = reader.readLine();
-                            ((Seller) user).createStore(storeName);
-                            addStoreToSellerFile(storeName, (Seller) user);
+                            synchronized (gatekeeper) {
+                                String storeName = reader.readLine();
+                                ((Seller) user).createStore(storeName);
+                                addStoreToSellerFile(storeName, (Seller) user);
+                            }
                             break;
                         case "Delete an existing store":
-                            String storeToRemove = reader.readLine();
-                            String username1 = reader.readLine();
-                            ArrayList<String> storeNames = Seller.readStoreNamesFromFile(username1);
-                            if (storeNames.contains(storeToRemove)) {
-                                storeNames.remove(storeToRemove);
-                                Seller.writeStoreNamesToFile(username, storeNames);  // rewrite stores to the file
-                            } else {
-                                writer.write("DNE");
-                                writer.println();
-                                writer.flush();
+                            synchronized (gatekeeper) {
+                                String storeToRemove = reader.readLine();
+                                String username1 = reader.readLine();
+                                ArrayList<String> storeNames = Seller.readStoreNamesFromFile(username1);
+                                if (storeNames.contains(storeToRemove)) {
+                                    storeNames.remove(storeToRemove);
+                                    Seller.writeStoreNamesToFile(username, storeNames);  // rewrite stores to the file
+                                } else {
+                                    writer.write("DNE");
+                                    writer.println();
+                                    writer.flush();
+                                }
                             }
                             break;
 
                         case "Edit a product":
-                            String prodName = reader.readLine();
-                            String store1 = reader.readLine();
-                            Seller.editProduct(prodName, store1);
-                            //saveProductsToFile();
+                            synchronized (gatekeeper) {
+                                String prodName = reader.readLine();
+                                String store1 = reader.readLine();
+                                Seller.editProduct(prodName, store1);
+                                //saveProductsToFile();
+                            }
                             break;
 
                         case "Add product":
-                            boolean isValid = true;
-                            do {
-                                String m = reader.readLine();
-                                if (m.equals("False"))
-                                    isValid = false;
-                                String message = reader.readLine();
-                                String product = reader.readLine();
+                            synchronized (gatekeeper) {
+                                boolean isValid = true;
+                                do {
+                                    String m = reader.readLine();
+                                    if (m.equals("False"))
+                                        isValid = false;
+                                    String message = reader.readLine();
+                                    String product = reader.readLine();
 
-                                if (message.equals("E")) {
-                                    addProductToStore(product, (Seller) user, reader, writer);
-                                    saveProductsToFile();
-                                }
-                            } while (!isValid);
+                                    if (message.equals("E")) {
+                                        addProductToStore(product, (Seller) user, reader, writer);
+                                        saveProductsToFile();
+                                    }
+                                } while (!isValid);
+                            }
                             break;
 
                         case "Delete product":
-                            String store = reader.readLine();
-                            String removeProduct = reader.readLine();
-                            ArrayList<String> productNames = Seller.readProductsFromFile(store);
-                            if (productNames.contains(removeProduct)) {
-                                productNames.remove(removeProduct);
-                                writer.write("Removed");
-                                writer.println();
-                                writer.flush();
-                                Seller.writeProductNamesToFile(store, productNames); // rewrite product names to file
-                            } else {
-                                writer.write("False");
-                                writer.println();
-                                writer.flush();
-                            }
-                            ArrayList<String> productName = Seller.readProductsFromFiles();
-                            if (productName.contains(removeProduct)) {
-                                productName.remove(removeProduct);
-                                Seller.writeProductNamesToFiles(productName);
+                            synchronized (gatekeeper) {
+                                String store = reader.readLine();
+                                String removeProduct = reader.readLine();
+                                ArrayList<String> productNames = Seller.readProductsFromFile(store);
+                                if (productNames.contains(removeProduct)) {
+                                    productNames.remove(removeProduct);
+                                    writer.write("Removed");
+                                    writer.println();
+                                    writer.flush();
+                                    Seller.writeProductNamesToFile(store, productNames); // rewrite product names to file
+                                } else {
+                                    writer.write("False");
+                                    writer.println();
+                                    writer.flush();
+                                }
+                                ArrayList<String> productName = Seller.readProductsFromFiles();
+                                if (productName.contains(removeProduct)) {
+                                    productName.remove(removeProduct);
+                                    Seller.writeProductNamesToFiles(productName);
+                                }
                             }
                             break;
 
                         case "View Sales":
-                            String sales = reader.readLine();
-                            double revenue = 0;
-                            try (BufferedReader bfr = new BufferedReader(new FileReader(p))){
-                                String line;
-                                while ((line = bfr.readLine()) != null) {
-                                    String[] contents = line.split(",");
-                                    int quantitySold = Integer.parseInt(contents[5]);
-                                    double price = Double.parseDouble(contents[3]);
-                                    if (contents[1].equals(sales)) {
-                                        revenue += quantitySold * price;
+                            synchronized (gatekeeper) {
+                                String sales = reader.readLine();
+                                double revenue = 0;
+                                try (BufferedReader bfr = new BufferedReader(new FileReader(p))) {
+                                    String line;
+                                    while ((line = bfr.readLine()) != null) {
+                                        String[] contents = line.split(",");
+                                        int quantitySold = Integer.parseInt(contents[5]);
+                                        double price = Double.parseDouble(contents[3]);
+                                        if (contents[1].equals(sales)) {
+                                            revenue += quantitySold * price;
+                                        }
                                     }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                                writer.write(String.valueOf(revenue));
+                                writer.println();
+                                writer.flush();
                             }
-                            writer.write(String.valueOf(revenue));
-                            writer.println();
-                            writer.flush();
                             break;
 
                         case "View number of products currently in customer shopping carts":
-                            String userWanted = reader.readLine();
-                            try {
-                                writer.write("No Error");
-                                writer.println();
-                                writer.flush();
-                                BufferedReader bfr = new BufferedReader(new FileReader(userWanted + " _info.txt"));
-                                String line;
-                                while ((line = bfr.readLine()) != null) {
-                                    System.out.println(line);
+                            synchronized (gatekeeper) {
+                                String userWanted = reader.readLine();
+                                try {
+                                    writer.write("No Error");
+                                    writer.println();
+                                    writer.flush();
+                                    BufferedReader bfr = new BufferedReader(new FileReader(userWanted + " _info.txt"));
+                                    String line;
+                                    while ((line = bfr.readLine()) != null) {
+                                        System.out.println(line);
+                                    }
+                                    bfr.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    writer.write("Error");
+                                    writer.println();
+                                    writer.flush();
                                 }
-                                bfr.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                writer.write("Error");
-                                writer.println();
-                                writer.flush();
                             }
                             break;
 
                         case "Import products to store(csv file)":
-                            String imports = reader.readLine();
-                            ((Seller) user).importProductsFromCSV(imports);
+                            synchronized (gatekeeper) {
+                                String imports = reader.readLine();
+                                ((Seller) user).importProductsFromCSV(imports);
+                            }
                             break;
 
                         case "Export products to store(csv file)":
-                            String exportFilePath = reader.readLine();
-                            try {
-                                ((Seller) user).exportProductsToCSV(exportFilePath);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
+                            synchronized (gatekeeper) {
+                                String exportFilePath = reader.readLine();
+                                try {
+                                    ((Seller) user).exportProductsToCSV(exportFilePath);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
                             }
                             break;
 
                         case "View products currently in each store":
-                            String storeWanted = reader.readLine();
-                            String line;
-                            try {
-                                BufferedReader bfr = new BufferedReader(new FileReader(storeWanted + ".txt"));
-                                while ((line = bfr.readLine()) != null) {
-                                    System.out.println(line);
+                            synchronized (gatekeeper) {
+                                String storeWanted = reader.readLine();
+                                String line;
+                                try {
+                                    BufferedReader bfr = new BufferedReader(new FileReader(storeWanted + ".txt"));
+                                    while ((line = bfr.readLine()) != null) {
+                                        System.out.println(line);
+                                    }
+                                    bfr.close();
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
                                 }
-                                bfr.close();
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
                             }
                             break;
 
                         case "Logout and Exit":
-                            valid = false;
+                            synchronized (gatekeeper) {
+                                valid = false;
+                                saveProductsToFile();
+                            }
                     }
                 }
             }
