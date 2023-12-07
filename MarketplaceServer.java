@@ -633,7 +633,7 @@ public class MarketplaceServer {
                                 String line;
                                 while ((line = bfr.readLine()) != null) {
                                     String[] contents = line.split(",");
-                                    int quantitySold = Integer.parseInt(contents[4]);
+                                    int quantitySold = Integer.parseInt(contents[5]);
                                     double price = Double.parseDouble(contents[3]);
                                     if (contents[1].equals(sales)) {
                                         revenue += quantitySold * price;
