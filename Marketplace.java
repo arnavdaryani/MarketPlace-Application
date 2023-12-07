@@ -597,9 +597,13 @@ public class Marketplace extends JComponent implements Runnable {
                                 return;
                             }
                             break;
-                        case "Delete an existing store":
+                
+                       case "Delete an existing store":
                             String storeToRemove = JOptionPane.showInputDialog(null, "What is the name of the store you would like to delete?",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                            writer.write(storeToRemove);
+                            writer.println();
+                            writer.flush();
                             if (storeToRemove == null) {
                                 return;
                             }
@@ -615,18 +619,20 @@ public class Marketplace extends JComponent implements Runnable {
                             if (message.equals("DNE")) {
                                 JOptionPane.showMessageDialog(null, "Sorry this store does not exist",
                                         "Marketplace", JOptionPane.ERROR_MESSAGE);
-                                return;
+                                break;
                             }
-                            // Delete the corresponding store file
-                            File storeFile1 = new File(storeToRemove + ".txt");
-                            if (storeFile1.exists() && storeFile1.delete()) {
-                                JOptionPane.showMessageDialog(null, "Store removed successfully.",
-                                        "Marketplace", JOptionPane.INFORMATION_MESSAGE);
-                            } else {
-                                JOptionPane.showMessageDialog(null, "Failed to remove the store.",
-                                        "Marketplace", JOptionPane.ERROR_MESSAGE);
-                            }
+
+                                // Delete the corresponding store file
+                                File storeFile1 = new File(storeToRemove + ".txt");
+                                if (storeFile1.exists() && storeFile1.delete()) {
+                                    JOptionPane.showMessageDialog(null, "Store removed successfully.",
+                                            "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+                                } else {
+                                    JOptionPane.showMessageDialog(null, "Failed to remove the store.",
+                                            "Marketplace", JOptionPane.ERROR_MESSAGE);
+                                }
                             break;
+
 
                         case "Edit a product":
                             String prodName = JOptionPane.showInputDialog(null, "Enter the name of the product you would like to edit:",
