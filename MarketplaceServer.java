@@ -597,24 +597,25 @@ public class MarketplaceServer {
                             }
                             break;
 
-                        case "Add product":
+                         case "Add product":
                             synchronized (gatekeeper) {
                                 boolean isValid = true;
                                 do {
                                     String m = reader.readLine();
-                                    if (m.equals("False"))
+                                    if (m.equals("False")) {
                                         isValid = false;
-                                    String message = reader.readLine();
-                                    String product = reader.readLine();
-
-                                    if (message.equals("E")) {
+                                    } else if (m.equals("E")) {
+                                        String product = reader.readLine();
+                                        writer.write("a");
+                                        writer.println();
+                                        writer.flush();
                                         addProductToStore(product, (Seller) user, reader, writer);
                                         saveProductsToFile();
                                     }
                                 } while (!isValid);
                             }
                             break;
-
+                            
                         case "Delete product":
                             synchronized (gatekeeper) {
                                 String store = reader.readLine();
