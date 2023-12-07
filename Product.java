@@ -30,6 +30,16 @@ public class Product implements Comparable<Product> {
         this.listOfCustomers = new ArrayList<Customer>();
     }
 
+    public Product(String productName, String storeName, String description, double price, int quantity,
+                   int quantitySold) {
+        this.productName = productName;
+        this.storeName = storeName;
+        this.description = description;
+        this.price = price;
+        this.quantity = quantity;
+        this.quantitySold = quantitySold;
+    }
+
     public Product(String fileName) {
         listOfCustomers = new ArrayList<Customer>();
         try {
@@ -132,11 +142,17 @@ public class Product implements Comparable<Product> {
                 productName, storeName, description, price, quantity);
         System.out.println();
     }
+
+    public String listInFile() {
+        return(String.format("%s,%s,%s,%.2f,%d,%d",
+                productName, storeName, description, price, quantity, quantitySold));
+    }
+
     public String returnProductPage() {
         return ("Name: " + productName + "\nStore Name: " + storeName + "\nDescription: " + description + "\nPrice: " + price + "\nQuantity Available: " + quantity);
     }
     public String toString() {
-        return("Name: " + productName + "\nStore Name: " + storeName + "\nPrice: " + price + "\n");
+        return("Name: " + productName + "| Store Name: " + storeName + "| Price: " + price + "\n");
     }
 
 }
