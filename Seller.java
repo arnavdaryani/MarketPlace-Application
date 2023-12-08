@@ -350,5 +350,52 @@ public class Seller extends JComponent implements Serializable {
             System.out.println("Failed to update store file");
         }
     }
+        public static void deleteProd(String productName, String storeName) {
+        File storeFile = new File(storeName + ".txt");
+        File tempFile = new File("temp.txt");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(storeFile));
+             PrintWriter writer = new PrintWriter(new FileWriter(tempFile));
+             BufferedReader bfr = new BufferedReader(new FileReader("products.txt"));
+             PrintWriter pw = new PrintWriter(new FileWriter("tempProducts.txt"))) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] productDetails = line.split(",");
+                if (productDetails[0].equalsIgnoreCase(productName)) {
+                    // ... (existing code for updating the store file)
+
+                    // Update the products.txt file
+                    String newProductDetails = ""; // Your logic to obtain the new details
+                    pw.println(newProductDetails);
+                    JOptionPane.showMessageDialog(null, "Product information updated successfully!",
+                            "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    writer.println(line);
+                }
+            }
+
+            // Close the writer for the store file
+            writer.close();
+
+            // Copy the remaining lines from the original products.txt file to tempProducts.txt
+            String lines;
+            while ((lines = bfr.readLine()) != null) {
+                pw.println(lines);
+            }
+
+            // Replace the original file with the temporary file for both store and products
+            if (storeFile.delete() && tempFile.renameTo(storeFile) &&
+                    new File("tempProducts.txt").renameTo(new File("products.txt"))) {
+                System.out.println("Files updated successfully");
+            } else {
+                System.out.println("Failed to update files");
+            }
+
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Error occurred while editing the product.",
+                    "Marketplace", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 }
 
