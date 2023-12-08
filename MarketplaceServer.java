@@ -615,30 +615,13 @@ public class MarketplaceServer {
                                 } while (!isValid);
                             }
                             break;
-                            
                         case "Delete product":
-                            synchronized (gatekeeper) {
-                                String store = reader.readLine();
-                                String removeProduct = reader.readLine();
-                                ArrayList<String> productNames = Seller.readProductsFromFile(store);
-                                if (productNames.contains(removeProduct)) {
-                                    productNames.remove(removeProduct);
-                                    writer.write("Removed");
-                                    writer.println();
-                                    writer.flush();
-                                    Seller.writeProductNamesToFile(store, productNames); // rewrite product names to file
-                                } else {
-                                    writer.write("False");
-                                    writer.println();
-                                    writer.flush();
-                                }
-                                ArrayList<String> productName = Seller.readProductsFromFiles();
-                                if (productName.contains(removeProduct)) {
-                                    productName.remove(removeProduct);
-                                    Seller.writeProductNamesToFiles(productName);
-                                }
+                             synchronized (gatekeeper) {
+                                 String store = reader.readLine();
+                                 String removeProduct = reader.readLine();
+                                 Seller.deleteProd(removeProduct, store);
                             }
-                            break;
+                        break;
 
                         case "View Sales":
                             synchronized (gatekeeper) {
