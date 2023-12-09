@@ -188,13 +188,12 @@ public class MarketplaceServer {
     public static void main(String[] args) {
         try {
             ServerSocket ss = new ServerSocket(PORT);
-            ss.setReuseAddress(true);
             while (true) {
                 Socket socket = ss.accept();
-                ThreadManager clientHandler = new ThreadManager(socket);
-                Thread thread = new Thread(clientHandler);
+                ThreadManager tm = new ThreadManager(socket);
+                Thread thread = new Thread(tm);
                 thread.start();
-            }
+            } 
         } catch (IOException e) {
             e.printStackTrace();
         }
