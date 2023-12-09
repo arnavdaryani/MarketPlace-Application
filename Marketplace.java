@@ -267,7 +267,7 @@ public class Marketplace extends JComponent {
                                     for (int i = 0; i < storeProducts.length; i++) {
                                         storeProducts[i] = reader.readLine();
                                     }
-                                    String productChoice = (String) JOptionPane.showInputDialog(null, "Sorted by Price", "Marketplace",
+                                    String productChoice = (String) JOptionPane.showInputDialog(null, "Pruducts with the store name", "Marketplace",
                                     JOptionPane.PLAIN_MESSAGE, null, storeProducts, null);
                                     writer.write(productChoice);
                                     writer.println();
