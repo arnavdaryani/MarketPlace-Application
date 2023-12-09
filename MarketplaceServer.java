@@ -174,6 +174,21 @@ public class MarketplaceServer {
         return correctOnes;
     }
 
+    public static boolean checkIfUsernameTaken(String username) {
+        try (BufferedReader bfr = new BufferedReader(new FileReader(f))) {
+            String line;
+            while ((line = bfr.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts[0].equals(username)) {
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+		return false;
+    }
+
     public static void main(String[] args) {
         try {
             ServerSocket ss = new ServerSocket(PORT);
@@ -243,35 +258,34 @@ static class ThreadManager implements Runnable {
                     }
                 } while (!loggedIn);
             } else {
-                while (true) {
+                
+                do {
                     String username = reader.readLine();
-                    synchronized (gatekeeper) {
-                        String line = userReader.readLine();
-                        while (line != null) {
-                            String[] userData = line.split(",");
-                            if (userData[0].equals(username)) {
-                                writer.write("true");
-                                writer.println();
-                                writer.flush();
-                                break;
-                            }
-                            line = userReader.readLine();
-                        }
+                    if (checkIfUsernameTaken(username)) {
+                        writer.write("true");
+                        writer.println();
+                        writer.flush();
+                    } else {
                         writer.write("false");
                         writer.println();
                         writer.flush();
                         break;
                     }
-                }
+                } while (true);
 
-                while (reader.readLine().equals("Passwords did not match")) {
-                    reader.readLine();
-                }
+                String password;
+                String confirmPassword;
 
-                String userData = reader.readLine();
-                userWriter.write(userData);
-                userWriter.println();
-                userWriter.flush();
+                do {
+                    password = reader.readLine();
+                    confirmPassword = reader.readLine();
+                    if (password.equals(confirmPassword)) {
+                        String userData = reader.readLine();
+                        userWriter.write(userData);
+                        userWriter.println();
+                        userWriter.flush();
+                    }
+                } while (!password.equals(confirmPassword));
             }
 
             userReader.close();
