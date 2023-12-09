@@ -7,12 +7,12 @@ import java.util.ArrayList;
 
 /**
  * Marketplace
- * 
+ *
  * This class represents a marketplace with the GUI
  * forms the client-side of the connection
- * 
+ *
  * @author Sathvik Swamy, Neha Jain, Dariush Mokhlesi, Arnav Daryani
- * 
+ *
  * @version December 2023
  */
 
@@ -33,7 +33,6 @@ public class Marketplace extends JComponent {
             writer.write(username);
             writer.println();
             writer.flush();
-
             String taken = "";
             try {
                 taken = reader.readLine();
@@ -47,6 +46,7 @@ public class Marketplace extends JComponent {
             } else {
                 break;
             }
+
         } while (true);
 
         do {
@@ -65,7 +65,6 @@ public class Marketplace extends JComponent {
                         "Marketplace", JOptionPane.ERROR_MESSAGE);
             }
         } while (!password.equals(confirmPassword));
-        
         JOptionPane.showMessageDialog(null, "Your account was successfully created!");
         if (userType.equals("Customer")) {
             line = String.format("%s,%s,%s", username, password, "Customer");
@@ -143,7 +142,7 @@ public class Marketplace extends JComponent {
     public static void main(String[] args) {
         BufferedReader reader = null;
         PrintWriter writer = null;
-        try (Socket socket = new Socket("localhost", 5000)) {
+        try (Socket socket = new Socket("localhost", 5001)) {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream(), true);
 
@@ -227,7 +226,7 @@ public class Marketplace extends JComponent {
             } else {
                 return;
             }
-            
+
             if (user instanceof Customer) {
                 // customer implementation
                 user = new Customer(username, password);
@@ -267,8 +266,8 @@ public class Marketplace extends JComponent {
                                     for (int i = 0; i < storeProducts.length; i++) {
                                         storeProducts[i] = reader.readLine();
                                     }
-                                    String productChoice = (String) JOptionPane.showInputDialog(null, "Pruducts with the store name", "Marketplace",
-                                    JOptionPane.PLAIN_MESSAGE, null, storeProducts, null);
+                                    String productChoice = (String) JOptionPane.showInputDialog(null, "Sorted by Price", "Marketplace",
+                                            JOptionPane.PLAIN_MESSAGE, null, storeProducts, null);
                                     writer.write(productChoice);
                                     writer.println();
                                     writer.flush();
@@ -295,7 +294,7 @@ public class Marketplace extends JComponent {
                                         productToDisplay[i] = reader.readLine();
                                     }
                                     String productChoice = (String) JOptionPane.showInputDialog(null, "Sorted by Price", "Marketplace",
-                                    JOptionPane.PLAIN_MESSAGE, null, productToDisplay, null);
+                                            JOptionPane.PLAIN_MESSAGE, null, productToDisplay, null);
                                     writer.write(productChoice);
                                     writer.println();
                                     writer.flush();
@@ -369,28 +368,28 @@ public class Marketplace extends JComponent {
                             int numbers1;
                             switch (selection1) {
                                 case "Add to cart":
-                                do {
-                                    String numbers = JOptionPane.showInputDialog(null, "Enter the quantity of the product you would like to purchase.",
-                                            "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                                    if (numbers == null) {
-                                        return;
-                                    }
-                                    try {
-                                        numbers1 = Integer.parseInt(numbers);
-                                        writer.write(String.valueOf(numbers1));
-                                        writer.println();
-                                        writer.flush();
-                                        if (reader.readLine().equals("Quantity greater than available")) {
-                                        JOptionPane.showMessageDialog(null, "The quantity you would like to purchase is greater than the current value. Please try again!",
-                                                "Marketplace", JOptionPane.ERROR_MESSAGE);
-                                        } else {
-                                            break;
+                                    do {
+                                        String numbers = JOptionPane.showInputDialog(null, "Enter the quantity of the product you would like to purchase.",
+                                                "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                                        if (numbers == null) {
+                                            return;
                                         }
-                                    } catch (Exception e) {
-                                        JOptionPane.showMessageDialog(null, "Please enter an integer",
-                                                "Marketplace", JOptionPane.ERROR_MESSAGE);
-                                    }
-                                } while (true);
+                                        try {
+                                            numbers1 = Integer.parseInt(numbers);
+                                            writer.write(String.valueOf(numbers1));
+                                            writer.println();
+                                            writer.flush();
+                                            if (reader.readLine().equals("Quantity greater than available")) {
+                                                JOptionPane.showMessageDialog(null, "The quantity you would like to purchase is greater than the current value. Please try again!",
+                                                        "Marketplace", JOptionPane.ERROR_MESSAGE);
+                                            } else {
+                                                break;
+                                            }
+                                        } catch (Exception e) {
+                                            JOptionPane.showMessageDialog(null, "Please enter an integer",
+                                                    "Marketplace", JOptionPane.ERROR_MESSAGE);
+                                        }
+                                    } while (true);
                                     JOptionPane.showMessageDialog(null, "The product was added!",
                                             "Marketplace", JOptionPane.INFORMATION_MESSAGE);
                                 case "Go Back":
@@ -493,8 +492,8 @@ public class Marketplace extends JComponent {
                                 return;
                             }
                             break;
-                
-                       case "Delete an existing store":
+
+                        case "Delete an existing store":
                             String storeToRemove = JOptionPane.showInputDialog(null, "What is the name of the store you would like to delete?",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
                             writer.write(storeToRemove);
@@ -518,15 +517,15 @@ public class Marketplace extends JComponent {
                                 break;
                             }
 
-                                // Delete the corresponding store file
-                                File storeFile1 = new File(storeToRemove + ".txt");
-                                if (storeFile1.exists() && storeFile1.delete()) {
-                                    JOptionPane.showMessageDialog(null, "Store removed successfully.",
-                                            "Marketplace", JOptionPane.INFORMATION_MESSAGE);
-                                } else {
-                                    JOptionPane.showMessageDialog(null, "Failed to remove the store.",
-                                            "Marketplace", JOptionPane.ERROR_MESSAGE);
-                                }
+                            // Delete the corresponding store file
+                            File storeFile1 = new File(storeToRemove + ".txt");
+                            if (storeFile1.exists() && storeFile1.delete()) {
+                                JOptionPane.showMessageDialog(null, "Store removed successfully.",
+                                        "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to remove the store.",
+                                        "Marketplace", JOptionPane.ERROR_MESSAGE);
+                            }
                             break;
 
 
@@ -555,10 +554,9 @@ public class Marketplace extends JComponent {
                                 String product = JOptionPane.showInputDialog(null, "What store would you like to add a product to?",
                                         "Marketplace", JOptionPane.QUESTION_MESSAGE);
                                 if (product == null) {
-                                    break;
+                                    return;
                                 }
                                 File storeName1 = new File(product + ".txt");
-                                System.out.println("reach");
                                 if (!storeName1.exists()) {
                                     JOptionPane.showMessageDialog(null, "Error this store does not exist",
                                             "Marketplace", JOptionPane.ERROR_MESSAGE);
@@ -595,7 +593,6 @@ public class Marketplace extends JComponent {
                                 }
                             } while (!isValidStore);
                             break;
-
                         case "Delete product":
                             String store = JOptionPane.showInputDialog(null, "What EXACT store has the product you would like to delete?",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
