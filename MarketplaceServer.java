@@ -2,10 +2,21 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
+/**
+ * Marketplace Server
+ * 
+ * This class represents the server to which the client connects
+ * processing the user information is done here
+ * 
+ * @author Sathvik Swamy, Neha Jain, Dariush Mokhlesi, Arnav Daryani
+ * 
+ * @version December 2023
+ */
+
 public class MarketplaceServer {
 
     public static ArrayList<Product> products = new ArrayList<>();
-    public static final int PORT = 4242;
+    public static final int PORT = 5000;
     public static File f = new File("users.txt");
     public static File p = new File("products.txt");
     public static Object user;
@@ -73,7 +84,7 @@ public class MarketplaceServer {
     }
 
     public static void saveProductsToFile() {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(p, true))) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(p))) {
             for (Product prod : products) {
                 pw.println(prod.listInFile());
                 pw.flush();
@@ -166,47 +177,71 @@ public class MarketplaceServer {
     public static void main(String[] args) {
         try {
             ServerSocket ss = new ServerSocket(PORT);
-            Socket socket = ss.accept();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+            ss.setReuseAddress(true);
+            while (true) {
+                Socket socket = ss.accept();
+                ThreadManager clientHandler = new ThreadManager(socket);
+                Thread thread = new Thread(clientHandler);
+                thread.start();
+        } 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+static class ThreadManager implements Runnable {
+    private final Socket socket;
+
+    public ThreadManager(Socket socket) {
+        this.socket = socket;
+    }
+
+    public void run() {
+        BufferedReader reader = null;
+        PrintWriter writer = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            writer = new PrintWriter(socket.getOutputStream(), true);
 
             BufferedReader userReader = new BufferedReader(new FileReader(f));
             PrintWriter userWriter = new PrintWriter(new FileWriter(f, true));
 
             // Login or Signup process
-            String command = reader.readLine();
+            String choice = reader.readLine();
             String userInfo = null;
-            if (command.equals("Login")) {
-                String username = reader.readLine();
-                String password = reader.readLine();
+            boolean loggedIn = false;
+            if (choice.equals("Login")) {
+                do {
+                    String username = reader.readLine();
+                    String password = reader.readLine();
 
-                boolean loggedIn = false;
-                try (BufferedReader bfr = new BufferedReader(new FileReader("users.txt"))) {
-                    String line;
-                    while ((line = bfr.readLine()) != null) {
-                        String[] parts = line.split(",");
-                        if (parts[0].equals(username) && parts[1].equals(password)) {
-                            loggedIn = true;
-                            userInfo = line;
-                            break;
+                    try (BufferedReader bfr = new BufferedReader(new FileReader("users.txt"))) {
+                        String line;
+                        while ((line = bfr.readLine()) != null) {
+                            String[] parts = line.split(",");
+                            if (parts[0].equals(username) && parts[1].equals(password)) {
+                                loggedIn = true;
+                                userInfo = line;
+                                break;
+                            }
                         }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                if (loggedIn) {
-                    writer.write("user found");
-                    writer.println();
-                    writer.flush();
-                    writer.write(userInfo);
-                    writer.println();
-                    writer.flush();
-                } else {
-                    writer.write("user not found");
-                    writer.println();
-                    writer.flush();
-                }
-
+                    if (loggedIn) {
+                        writer.write("user found");
+                        writer.println();
+                        writer.flush();
+                        writer.write(userInfo);
+                        writer.println();
+                        writer.flush();
+                    } else {
+                        writer.write("user not found");
+                        writer.println();
+                        writer.flush();
+                    }
+                } while (!loggedIn);
             } else {
                 while (true) {
                     String username = reader.readLine();
@@ -222,11 +257,15 @@ public class MarketplaceServer {
                             }
                             line = userReader.readLine();
                         }
+                        writer.write("false");
+                        writer.println();
+                        writer.flush();
+                        break;
                     }
-                    writer.write("false");
-                    writer.println();
-                    writer.flush();
-                    break;
+                }
+
+                while (reader.readLine().equals("Passwords did not match")) {
+                    reader.readLine();
                 }
 
                 String userData = reader.readLine();
@@ -252,7 +291,6 @@ public class MarketplaceServer {
             }
 
             if (user instanceof Customer) {
-                // Customer processing
                 while (true) {
                     String selection = reader.readLine();
                     synchronized (gatekeeper) {
@@ -260,6 +298,7 @@ public class MarketplaceServer {
                     }
                     switch (selection) {
                         case "Search for a product":
+                            products = readFromFile();
                             if (reader.readLine().equals("Search for a product by store name")) {
                                 String nameOfIt = reader.readLine();
                                 ArrayList<Product> storeItems = new ArrayList<>();
@@ -291,11 +330,11 @@ public class MarketplaceServer {
                                     for (Product prod : products) {
                                         if (prod.getProductName().equalsIgnoreCase(itemName)
                                                 && prod.getStoreName().equalsIgnoreCase(storeName)) {
-                                            String productPage = prod.returnProductPage();
-                                            writer.write(productPage);
-                                            writer.println();
-                                            writer.flush();
-                                            break;
+                                                    String productPage = prod.returnProductPage();
+                                                    writer.write(productPage);
+                                                    writer.println();
+                                                    writer.flush();
+                                                    break;
                                         }
                                     }
 
@@ -343,11 +382,11 @@ public class MarketplaceServer {
                                     for (Product prod : products) {
                                         if (prod.getProductName().equalsIgnoreCase(itemName)
                                                 && prod.getStoreName().equalsIgnoreCase(storeName)) {
-                                            String productPage = prod.returnProductPage();
-                                            writer.write(productPage);
-                                            writer.println();
-                                            writer.flush();
-                                            break;
+                                                    String productPage = prod.returnProductPage();
+                                                    writer.write(productPage);
+                                                    writer.println();
+                                                    writer.flush();
+                                                    break;
                                         }
                                     }
                                 }
@@ -380,13 +419,13 @@ public class MarketplaceServer {
                             for (Product prod : products) {
                                 if (prod.getProductName().equalsIgnoreCase(itemName)
                                         && prod.getStoreName().equalsIgnoreCase(storeName)) {
-                                    String productPage = prod.returnProductPage();
-                                    writer.write(productPage);
-                                    writer.println();
-                                    writer.flush();
-                                    break;
+                                            String productPage = prod.returnProductPage();
+                                            writer.write(productPage);
+                                            writer.println();
+                                            writer.flush();
+                                            break;
                                 }
-                            }
+                            }     
                             break;
                         case "Sort products by quantity available":
                             String[] sortedProductsQuantity;
@@ -415,15 +454,16 @@ public class MarketplaceServer {
                             for (Product prod : products) {
                                 if (prod.getProductName().equalsIgnoreCase(itemName)
                                         && prod.getStoreName().equalsIgnoreCase(storeName)) {
-                                    String productPage = prod.returnProductPage();
-                                    writer.write(productPage);
-                                    writer.println();
-                                    writer.flush();
-                                    break;
+                                            String productPage = prod.returnProductPage();
+                                            writer.write(productPage);
+                                            writer.println();
+                                            writer.flush();
+                                            break;
                                 }
-                            }
+                            }     
                             break;
                         case "View product page to purchase":
+                            products = readFromFile();
                             String productName = reader.readLine();
                             storeName = reader.readLine();
                             synchronized (gatekeeper) {
@@ -442,16 +482,20 @@ public class MarketplaceServer {
                                     writer.flush();
                                     String selection1 = reader.readLine();
                                     if (selection1.equals("Add to cart")) {
-                                        int quantity = Integer.parseInt(reader.readLine());
-                                        if (quantity > product.getQuantity()) {
-                                            writer.write("Quantity greater than available");
-                                            writer.println();
-                                            writer.flush();
-                                        } else {
-                                            writer.write("Added to cart");
-                                            writer.println();
-                                            writer.flush();
-                                        }
+                                        int quantity;
+                                        do {
+                                            quantity= Integer.parseInt(reader.readLine());
+                                            if (quantity > product.getQuantity()) {
+                                                writer.write("Quantity greater than available");
+                                                writer.println();
+                                                writer.flush();
+                                            } else {
+                                                writer.write("Added to cart");
+                                                writer.println();
+                                                writer.flush();
+                                                break;
+                                            }
+                                        } while (true);
                                         synchronized (gatekeeper) {
                                             ((Customer) user).getShoppingCart().addProduct(product, quantity);
                                             ((Customer) user).saveShoppingCart();
@@ -504,6 +548,7 @@ public class MarketplaceServer {
                                     ((Customer) user).checkout();
                                     ((Customer) user).previouslyPurchasedFile();
                                     ((Customer) user).saveShoppingCart();
+                                    saveProductsToFile();
                                 }
                             }
                             if (decision.equals("Remove Item")) {
@@ -712,8 +757,15 @@ public class MarketplaceServer {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                writer.close();
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-    }
-
+    }   
+}
 }
