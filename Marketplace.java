@@ -33,6 +33,7 @@ public class Marketplace extends JComponent {
             writer.write(username);
             writer.println();
             writer.flush();
+
             String taken = "";
             try {
                 taken = reader.readLine();
@@ -46,26 +47,25 @@ public class Marketplace extends JComponent {
             } else {
                 break;
             }
-
         } while (true);
 
         do {
             password = JOptionPane.showInputDialog(null, "Enter password:",
                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
+            writer.write(password);
+            writer.println();
+            writer.flush();
             confirmPassword = JOptionPane.showInputDialog(null, "Please re-enter your password:",
                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
+            writer.write(confirmPassword);
+            writer.println();
+            writer.flush();
             if (!password.equals(confirmPassword)) {
                 JOptionPane.showMessageDialog(null, "Your passwords did not match. Please try again!",
                         "Marketplace", JOptionPane.ERROR_MESSAGE);
-                writer.write("Passwords did not match");
-                writer.println();
-                writer.flush();
-            } else {
-                writer.write("Passwords matched");
-                writer.println();
-                writer.flush();
             }
         } while (!password.equals(confirmPassword));
+        
         JOptionPane.showMessageDialog(null, "Your account was successfully created!");
         if (userType.equals("Customer")) {
             line = String.format("%s,%s,%s", username, password, "Customer");
