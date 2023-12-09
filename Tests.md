@@ -119,13 +119,33 @@ Test status: passed
 
 Test 7 - Seller Menu - View Sales option 
 
+Login as a seller - seller username and password
+
+Select option called “view sales”
+
+Enter the name of the store you would like to view the sales for 
+
+A message will display showing the total revenue for that store
 
 
+Expected Result: The message will display showing the total amount of revenue for the selected store
 
-
+Test status: Passed.
 
 
 Test 8 - Seller Menu - view number of products currently in customer shopping carts option 
+
+Login as a seller - seller username and password
+
+Select option called “View number of products currently in customer shopping carts”
+
+Enter the exact username of the customer whose cart you would like to view
+
+A message will display showing the shopping cart information for that specific user 
+
+Expected Result: A message will display showing the shopping cart information for the specified user. 
+
+Test Status: Passed.
 
 
 
@@ -144,6 +164,48 @@ A success message will pop up
 Expected result: After the success message pops up the products will be read from the csv file given and wrote to both the store file, and the products.txt file, this will make sure the products are imported
 
 Test Status: passed
+
+Test 10 - Seller Menu - Export Products to csv file
+
+Login as a seller - seller username and password
+
+Select option called “Export Products to csv file”
+
+Enter the desired file name to export the products to (MUST BE IN .CSV FORMAT)
+
+A new file will be created with the desired file name and a success message will pop up
+
+Expected Result: A new .csv file will be created that stores all the information from the products.txt file into the new file. 
+
+Test status: Passed 
+
+
+Test 11 - Seller Menu - View products currently in each store 
+
+Login as a seller - seller username and password
+
+Select option front the menu called “View products currently in each store”
+
+Enter the name of the store wanted to view products for 
+
+A message will display showing the products in the store
+
+Expected result: Message will display stating the products currently in the specified store
+
+Test status: Passed 
+
+Test 12 - Seller Menu - Logout and exit option 
+
+Login as a seller - seller username and password
+
+Select the option from the menu called “logout and exit”
+
+Message will display saying “Thank you for using the marketplace”
+
+Expected Result: Thank you message will pop up and the program will end. 
+
+Test status: Passed
+
 
 
 
