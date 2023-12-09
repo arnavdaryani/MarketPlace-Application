@@ -17,10 +17,7 @@ import java.util.ArrayList;
  */
 
 public class Marketplace extends JComponent {
-    public static ArrayList<Product> products = new ArrayList<>();
     private static String userType;
-    public static File f = new File("users.txt");
-    public static File p = new File("products.txt");
 
     public static String createUser(String userType, BufferedReader reader, PrintWriter writer) {
         String line = null;
