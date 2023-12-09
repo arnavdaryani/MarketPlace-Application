@@ -5,21 +5,22 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class Marketplace extends JComponent implements Runnable {
-    // STILL NEED TO MAKE SURE THE USER CAN PRESS CANCEL OR RED X BUTTON AT ANY TIME DURING THE PROGRAM
+/**
+ * Marketplace
+ * 
+ * This class represents a marketplace with the GUI
+ * forms the client-side of the connection
+ * 
+ * @author Sathvik Swamy, Neha Jain, Dariush Mokhlesi, Arnav Daryani
+ * 
+ * @version December 2023
+ */
+
+public class Marketplace extends JComponent {
     public static ArrayList<Product> products = new ArrayList<>();
-    private String userType;
+    private static String userType;
     public static File f = new File("users.txt");
     public static File p = new File("products.txt");
-
-    public static void main(String[] args) {
-        Thread[] threads = new Thread[10];
-        /*for (int i = 0; i < 10; i++) {
-            threads[i] = new Thread(new Marketplace());
-            threads[i].start();
-        }*/
-        new Marketplace().run();
-    }
 
     public static String createUser(String userType, BufferedReader reader, PrintWriter writer) {
         String line = null;
@@ -41,7 +42,7 @@ public class Marketplace extends JComponent implements Runnable {
 
             if (taken.equals("true")) {
                 JOptionPane.showMessageDialog(null, "This username is already taken. Please try again!",
-                        "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+                        "Marketplace", JOptionPane.ERROR_MESSAGE);
             } else {
                 break;
             }
@@ -55,7 +56,14 @@ public class Marketplace extends JComponent implements Runnable {
                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
             if (!password.equals(confirmPassword)) {
                 JOptionPane.showMessageDialog(null, "Your passwords did not match. Please try again!",
-                        "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+                        "Marketplace", JOptionPane.ERROR_MESSAGE);
+                writer.write("Passwords did not match");
+                writer.println();
+                writer.flush();
+            } else {
+                writer.write("Passwords matched");
+                writer.println();
+                writer.flush();
             }
         } while (!password.equals(confirmPassword));
         JOptionPane.showMessageDialog(null, "Your account was successfully created!");
@@ -80,13 +88,8 @@ public class Marketplace extends JComponent implements Runnable {
         do {
             try (BufferedReader bfr = new BufferedReader(new FileReader("users.txt"))) {
                 String username = JOptionPane.showInputDialog(null, "Enter your username:");
-                if (username == null) {
-                    return null;
-                }
                 String password = JOptionPane.showInputDialog(null, "Enter your password:");
-                if (password == null) {
-                    return null;
-                }
+
                 writer.write(username);
                 writer.println();
                 writer.flush();
@@ -104,7 +107,6 @@ public class Marketplace extends JComponent implements Runnable {
                     line = reader.readLine();
                     JOptionPane.showMessageDialog(null, "Success! You are now logged in!",
                             "Marketplace", JOptionPane.INFORMATION_MESSAGE);
-                    break;
                 }
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(null,
@@ -138,105 +140,10 @@ public class Marketplace extends JComponent implements Runnable {
     }
 
 
-    public static void addStoreToSellerFile(String storeName, Seller seller) {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(seller.getFileName(), true))) {
-            pw.println(storeName);
-            seller.getStores().add(storeName);
-            //  storeNames.add(storeName);
-
-            File storeFile = new File(storeName + ".txt");
-            storeFile.createNewFile();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public static ArrayList<Product> readFromFile() {
-        ArrayList<Product> availableProducts = new ArrayList<>();
-        try (BufferedReader bfr = new BufferedReader(new FileReader(p))) {
-            String line = bfr.readLine();
-            while (line != null) {
-                String[] productInfo = line.split(",");
-                Product product = new Product(productInfo[0], productInfo[1], productInfo[2],
-                        Double.parseDouble(productInfo[3]), Integer.parseInt(productInfo[4]));
-                availableProducts.add(product);
-                line = bfr.readLine();
-            }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "No products are currently listed!",
-                    "Marketplace", JOptionPane.ERROR_MESSAGE);
-        }
-        return availableProducts;
-    }
-
-    public static void addProductToStore(String storeName, Seller seller) {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(storeName + ".txt", true), true)) {
-            String productDetails = JOptionPane.showInputDialog(null, "Enter product details separated by commas (name,store name,description,price,quantity):",
-                    "Marketplace", JOptionPane.QUESTION_MESSAGE);
-            pw.println(productDetails);
-            JOptionPane.showMessageDialog(null, "Product added successfully!",
-                    "Marketplace", JOptionPane.INFORMATION_MESSAGE);
-            String[] detailsArray = productDetails.split(",");
-            if (detailsArray.length == 5) {
-                String name = detailsArray[0];
-                String storeNames = detailsArray[1];
-                String description = detailsArray[2];
-                double price = Double.parseDouble(detailsArray[3]);
-                int quantity = Integer.parseInt(detailsArray[4]);
-                Product newProduct = new Product(name, storeNames, description, price, quantity);
-                products.add(newProduct);
-            }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error occurred while adding the product.",
-                    "Marketplace", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    public static void saveProductsToFile() {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(p, true))) {
-            for (Product prod : products) {
-                pw.println(prod.listInShoppingCart());
-                pw.flush();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static ArrayList<Product> searchForStore(String store) {
-        ArrayList<Product> searchResults = new ArrayList<>();
-        for (Product prod : products) {
-            if (prod.getStoreName().equalsIgnoreCase(store)) {
-                searchResults.add(prod);
-            }
-        }
-        return searchResults;
-    }
-
-    public static ArrayList<Product> searchForItemInStore(ArrayList<Product> firstList, String itemSearch) {
-        ArrayList<Product> searchResults = new ArrayList<>();
-        if (firstList.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "There are no items to search from!",
-                    "Marketplace", JOptionPane.ERROR_MESSAGE);
-        } else {
-            for (Product prod : products) {
-                if (prod.getProductName().contains(itemSearch) || prod.getDescription().contains(itemSearch)
-                        || prod.getStoreName().contains(itemSearch)) {
-                    searchResults.add(prod);
-                }
-            }
-        }
-        return searchResults;
-    }
-
-
-    public void run() {
+    public static void main(String[] args) {
         BufferedReader reader = null;
         PrintWriter writer = null;
-        try {
-            Socket socket = new Socket("localhost", 4242);
+        try (Socket socket = new Socket("localhost", 5000)) {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream(), true);
 
@@ -250,22 +157,23 @@ public class Marketplace extends JComponent implements Runnable {
             // IS THERE A WAY TO GET RID OF THE ICON?
             BufferedImage transparentImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB_PRE);
             ImageIcon icon = new ImageIcon(transparentImage);
+
             JOptionPane.showMessageDialog(null, label, "Marketplace", JOptionPane.INFORMATION_MESSAGE, icon);
+
+
             // Ask the user to choose between logging in or creating an account
             String[] options = {"Login", "Create Account"};
             int choice = JOptionPane.showOptionDialog(null,
                     "Would you like to login or create an account?",
                     "Marketplace", JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
             // Process the user's choice
             if (choice == JOptionPane.YES_OPTION) {
                 writer.write("Login");
                 writer.println();
                 writer.flush();
                 String userInfo = login(reader, writer);
-                if (userInfo == null) {
-                    return;
-                }
                 String[] userData = userInfo.split(",");
                 username = userData[0];
                 password = userData[1];
@@ -319,6 +227,7 @@ public class Marketplace extends JComponent implements Runnable {
             } else {
                 return;
             }
+            
             if (user instanceof Customer) {
                 // customer implementation
                 user = new Customer(username, password);
@@ -341,22 +250,15 @@ public class Marketplace extends JComponent implements Runnable {
                             writer.write("Search for a product");
                             writer.println();
                             writer.flush();
-                            products = readFromFile();
                             String[] selectionMenu = {"Search for a product by store name", "Search all products"};
                             String selectionSearch = (String) JOptionPane.showInputDialog(null, "Pick an Option Below", "Marketplace",
                                     JOptionPane.PLAIN_MESSAGE, null, selectionMenu, null);
-                            if (selectionSearch == null) {
-                                return;
-                            }
                             writer.write(selectionSearch);
                             writer.println();
                             writer.flush();
                             if (selectionSearch.equals("Search for a product by store name")) {
                                 String nameOfIt = JOptionPane.showInputDialog(null, "What is the EXACT name of the store?",
                                         "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                                if (nameOfIt == null) {
-                                    return;
-                                }
                                 writer.write(nameOfIt);
                                 writer.println();
                                 writer.flush();
@@ -365,21 +267,20 @@ public class Marketplace extends JComponent implements Runnable {
                                     for (int i = 0; i < storeProducts.length; i++) {
                                         storeProducts[i] = reader.readLine();
                                     }
-                                    String listOfThem = (String)JOptionPane.showInputDialog(null, "Products in the store", "Marketplace",
-                                            JOptionPane.PLAIN_MESSAGE, null, storeProducts, null);
-                                    if (listOfThem == null) {
-                                        return;
-                                    }
+                                    String productChoice = (String) JOptionPane.showInputDialog(null, "Sorted by Price", "Marketplace",
+                                    JOptionPane.PLAIN_MESSAGE, null, storeProducts, null);
+                                    writer.write(productChoice);
+                                    writer.println();
+                                    writer.flush();
+                                    String productPage = reader.readLine();
+                                    JOptionPane.showMessageDialog(null, productPage, "Marketplace", JOptionPane.PLAIN_MESSAGE);
                                 } else {
                                     JOptionPane.showMessageDialog(null, "There is no store with this name",
                                             "Marketplace", JOptionPane.ERROR_MESSAGE);
                                 }
                             } else {
                                 String searchTerm = JOptionPane.showInputDialog(null, "What would you like to search",
-                                        "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                                if (searchTerm == null) {
-                                    return;
-                                }
+                                        "Marketpldace", JOptionPane.QUESTION_MESSAGE);
                                 writer.write(searchTerm);
                                 writer.println();
                                 writer.flush();
@@ -393,11 +294,13 @@ public class Marketplace extends JComponent implements Runnable {
                                     for (int i = 0; i < length; i++) {
                                         productToDisplay[i] = reader.readLine();
                                     }
-                                    String canceledMaybe = (String)JOptionPane.showInputDialog(null, "Products containing the search term", "Marketplace",
-                                            JOptionPane.PLAIN_MESSAGE, null, productToDisplay, null);
-                                    if (canceledMaybe == null) {
-                                        return;
-                                    }
+                                    String productChoice = (String) JOptionPane.showInputDialog(null, "Sorted by Price", "Marketplace",
+                                    JOptionPane.PLAIN_MESSAGE, null, productToDisplay, null);
+                                    writer.write(productChoice);
+                                    writer.println();
+                                    writer.flush();
+                                    String productPage = reader.readLine();
+                                    JOptionPane.showMessageDialog(null, productPage, "Marketplace", JOptionPane.PLAIN_MESSAGE);
                                 }
                             }
                             break;
@@ -411,11 +314,13 @@ public class Marketplace extends JComponent implements Runnable {
                             for (int i = 0; i < length; i++) {
                                 sortedProducts[i] = reader.readLine();
                             }
-                            String checkAgain1 = (String)JOptionPane.showInputDialog(null, "Sorted by Price", "Marketplace",
+                            String productChoice = (String) JOptionPane.showInputDialog(null, "Sorted by Price", "Marketplace",
                                     JOptionPane.PLAIN_MESSAGE, null, sortedProducts, null);
-                            if (checkAgain1 == null) {
-                                return;
-                            }
+                            writer.write(productChoice);
+                            writer.println();
+                            writer.flush();
+                            String productPage = reader.readLine();
+                            JOptionPane.showMessageDialog(null, productPage, "Marketplace", JOptionPane.PLAIN_MESSAGE);
                             break;
                         case "Sort products by quantity available":
                             writer.write("Sort products by quantity available");
@@ -427,11 +332,13 @@ public class Marketplace extends JComponent implements Runnable {
                             for (int i = 0; i < length; i++) {
                                 sortedProducts[i] = reader.readLine();
                             }
-                            String check = (String)JOptionPane.showInputDialog(null, "Sorted by Quantity Available", "Marketplace",
+                            productChoice = (String) JOptionPane.showInputDialog(null, "Sorted by Price", "Marketplace",
                                     JOptionPane.PLAIN_MESSAGE, null, sortedProducts, null);
-                            if (check == null) {
-                                return;
-                            }
+                            writer.write(productChoice);
+                            writer.println();
+                            writer.flush();
+                            productPage = reader.readLine();
+                            JOptionPane.showMessageDialog(null, productPage, "Marketplace", JOptionPane.PLAIN_MESSAGE);
                             break;
                         case "View product page to purchase":
                             writer.write("View product page to purchase");
@@ -439,14 +346,8 @@ public class Marketplace extends JComponent implements Runnable {
                             writer.flush();
                             String nameOfIt = JOptionPane.showInputDialog(null, "Enter the EXACT name of the product.",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                            if (nameOfIt == null) {
-                                return;
-                            }
                             String nameOfIt1 = JOptionPane.showInputDialog(null, "Enter the EXACT store name of the product.",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
-                            if (nameOfIt1 == null) {
-                                return;
-                            }
                             writer.write(nameOfIt);
                             writer.println();
                             writer.flush();
@@ -455,45 +356,48 @@ public class Marketplace extends JComponent implements Runnable {
                             writer.flush();
                             if (reader.readLine().equals("Product not found")) {
                                 JOptionPane.showMessageDialog(null, "The item cannot be found",
-                                        "Marketplace", JOptionPane.INFORMATION_MESSAGE);
+                                        "Marketplace", JOptionPane.ERROR_MESSAGE);
                                 break;
                             }
                             String[] cartOption = {"Add to cart", "Go Back"};
                             String page1 = reader.readLine();
                             String selection1 = (String) JOptionPane.showInputDialog(null, page1, "Marketplace",
                                     JOptionPane.PLAIN_MESSAGE, null, cartOption, null);
-                            if (selection1 == null) {
-                                return;
-                            }
                             writer.write(selection1);
                             writer.println();
                             writer.flush();
                             int numbers1;
                             switch (selection1) {
                                 case "Add to cart":
+                                do {
                                     String numbers = JOptionPane.showInputDialog(null, "Enter the quantity of the product you would like to purchase.",
                                             "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                                    if (numbers == null) {
+                                        return;
+                                    }
                                     try {
                                         numbers1 = Integer.parseInt(numbers);
                                         writer.write(String.valueOf(numbers1));
                                         writer.println();
                                         writer.flush();
+                                        if (reader.readLine().equals("Quantity greater than available")) {
+                                        JOptionPane.showMessageDialog(null, "The quantity you would like to purchase is greater than the current value. Please try again!",
+                                                "Marketplace", JOptionPane.ERROR_MESSAGE);
+                                        } else {
+                                            break;
+                                        }
                                     } catch (Exception e) {
                                         JOptionPane.showMessageDialog(null, "Please enter an integer",
                                                 "Marketplace", JOptionPane.ERROR_MESSAGE);
                                     }
-                                    if (reader.readLine().equals("Quantity greater than available")) {
-                                        JOptionPane.showMessageDialog(null, "The quantity you would like to purchase is greater than the current value. Please try again!",
-                                                "Marketplace", JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                    }
+                                } while (true);
                                     JOptionPane.showMessageDialog(null, "The product was added!",
                                             "Marketplace", JOptionPane.INFORMATION_MESSAGE);
                                 case "Go Back":
                                     break;
                             }
                             break;
-                        case ("View shopping cart"):
+                        case "View shopping cart":
                             writer.write("View shopping cart");
                             writer.println();
                             writer.flush();
@@ -504,12 +408,9 @@ public class Marketplace extends JComponent implements Runnable {
                             for (int i = 0; i < length; i++) {
                                 values1[i] = reader.readLine();
                             }
-                            String cart1 = (String)JOptionPane.showInputDialog(null,
+                            JOptionPane.showInputDialog(null,
                                     "The Shopping Cart", "",
                                     JOptionPane.PLAIN_MESSAGE, null, values1, null);
-                            if (cart1 == null) {
-                                return;
-                            }
                             String decision = (String) JOptionPane.showInputDialog(null,
                                     "Options", "",
                                     JOptionPane.PLAIN_MESSAGE, null, values2, null);
@@ -523,9 +424,6 @@ public class Marketplace extends JComponent implements Runnable {
                                 String pickIt = (String) JOptionPane.showInputDialog(null,
                                         "Pick the item you want to remove", "",
                                         JOptionPane.PLAIN_MESSAGE, null, values1, null);
-                                if (pickIt == null) {
-                                    return;
-                                }
                                 pickIt = pickIt.substring(0, pickIt.indexOf(" --"));
                                 writer.write(pickIt);
                                 writer.println();
@@ -539,17 +437,15 @@ public class Marketplace extends JComponent implements Runnable {
                             writer.write("View purchase history");
                             writer.println();
                             writer.flush();
+
                             length = Integer.parseInt(reader.readLine());
                             String[] splitOnce = new String[length];
                             for (int i = 0; i < length; i++) {
                                 splitOnce[i] = reader.readLine();
                             }
-                            String purchaseH = (String)JOptionPane.showInputDialog(null,
+                            JOptionPane.showInputDialog(null,
                                     "The Purchase History (name then quantity)", "",
                                     JOptionPane.PLAIN_MESSAGE, null, splitOnce, null);
-                            if (purchaseH == null) {
-                                return;
-                            }
                             break;
                         case "Export purchase history":
                             writer.write("Export purchase history");
@@ -557,7 +453,7 @@ public class Marketplace extends JComponent implements Runnable {
                             writer.flush();
 
                             JOptionPane.showMessageDialog(null,
-                                    "Your purchase history has been exported to the file <" + username + ">_purchases.txt!",
+                                    "Your purchase history has been exported to the file <your username> _purchases.txt!",
                                     "Marketplace", JOptionPane.INFORMATION_MESSAGE);
                             break;
                         case ("Logout and Exit"):
@@ -637,12 +533,12 @@ public class Marketplace extends JComponent implements Runnable {
                         case "Edit a product":
                             String prodName = JOptionPane.showInputDialog(null, "Enter the name of the product you would like to edit:",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                            if (prodName == null) {
+                                break;
+                            }
                             writer.write(prodName);
                             writer.println();
                             writer.flush();
-                            if (prodName == null) {
-                                return;
-                            }
                             String store1 = JOptionPane.showInputDialog(null, "Enter the store name that contains the product you would like to edit:",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
                             writer.write(store1);
@@ -659,7 +555,7 @@ public class Marketplace extends JComponent implements Runnable {
                                 String product = JOptionPane.showInputDialog(null, "What store would you like to add a product to?",
                                         "Marketplace", JOptionPane.QUESTION_MESSAGE);
                                 if (product == null) {
-                                    return;
+                                    break;
                                 }
                                 File storeName1 = new File(product + ".txt");
                                 System.out.println("reach");
@@ -703,12 +599,12 @@ public class Marketplace extends JComponent implements Runnable {
                         case "Delete product":
                             String store = JOptionPane.showInputDialog(null, "What EXACT store has the product you would like to delete?",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                            if (store == null) {
+                                break;
+                            }
                             writer.write(store);
                             writer.println();
                             writer.flush();
-                            if (store == null) {
-                                return;
-                            }
                             String removeProduct = JOptionPane.showInputDialog(null, "What is the EXACT name of the product you would like to delete?",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
                             writer.write(removeProduct);
@@ -731,14 +627,13 @@ public class Marketplace extends JComponent implements Runnable {
                             // NOT SURE IF THIS METHOD IS PROPERLY WORKING... CAN WE DOUBLE CHECK?
                             String sales = JOptionPane.showInputDialog(null, "What store would you like to view the sales for?",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                            if (sales == null) {
+                                break;
+                            }
                             writer.write(sales);
                             writer.println();
                             writer.flush();
-                            if (sales == null) {
-                                return;
-                            }
                             String revenue = reader.readLine();
-                            int rev = Integer.parseInt(revenue);
                             JOptionPane.showMessageDialog(null, "The total revenue for the store is " + revenue,
                                     "Marketplace", JOptionPane.INFORMATION_MESSAGE);
                             break;
@@ -747,12 +642,12 @@ public class Marketplace extends JComponent implements Runnable {
                             // allows the seller to view the shopping cart of a specific user
                             String userWanted = JOptionPane.showInputDialog(null, "Please enter the EXACT username of the user whose shopping cart you would like to view",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                            if (userWanted == null) {
+                                break;
+                            }
                             writer.write(userWanted);
                             writer.println();
                             writer.flush();
-                            if (userWanted == null) {
-                                return;
-                            }
                             String s = reader.readLine();
                             if (s.equals("Error")) {
                                 JOptionPane.showMessageDialog(null, "Error this customer does not exist",
@@ -763,34 +658,34 @@ public class Marketplace extends JComponent implements Runnable {
                         case "Import products to store(csv file)":
                             String imports = JOptionPane.showInputDialog(null, "Enter the path to the CSV file for importing products: (MUST BE IN FORMAT AS FOLLOWS: PRODUCT NAME,STORE NAME,DESCRIPTION,PRICE,QUANTITY",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                            if (imports == null) {
+                                break;
+                            }
                             writer.write(imports);
                             writer.println();
                             writer.flush();
-                            if (imports == null) {
-                                return;
-                            }
                             break;
 
                         case "Export products to store(csv file)":
                             String exportFilePath = JOptionPane.showInputDialog(null, "Enter the path to the CSV file for exporting products: (MUST BE IN .CSV FORMAT, THIS WILL EXPORT ALL PRODUCTS TO CSV FILE",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                            if (exportFilePath == null) {
+                                break;
+                            }
                             writer.write(exportFilePath);
                             writer.println();
                             writer.flush();
-                            if (exportFilePath == null) {
-                                return;
-                            }
                             break;
 
                         case "View products currently in each store":
                             String storeWanted = JOptionPane.showInputDialog(null, "What store would you like to view the products for?",
                                     "Marketplace", JOptionPane.QUESTION_MESSAGE);
+                            if (storeWanted == null) {
+                                break;
+                            }
                             writer.write(storeWanted);
                             writer.println();
                             writer.flush();
-                            if (storeWanted == null) {
-                                return;
-                            }
                             break;
 
                         case "Logout and Exit":
@@ -806,6 +701,13 @@ public class Marketplace extends JComponent implements Runnable {
             }
         } catch (IOException ioe) {
             ioe.printStackTrace();
+        } finally {
+            try {
+                reader.close();
+                writer.close();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
         }
     }
 }
