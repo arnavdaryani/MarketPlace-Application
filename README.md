@@ -5,16 +5,16 @@
 <b>The main method of the program is located in the Marketplace and MarketplaceServer classes. Run the MarketplaceServer class and then the Marketplace class to begin the program. If you wish to test the multithreading functionality, you can run the Marketplace class more than once to open as many different windows as you like.</b> <br>
 You should create a new Customer account and a new Seller account to test the different functionalities. <br>
 Interact with the program by selecting the apppropraite option from the dropdown or clicking the appropriate buttons. <br>
+  
 Eg., When you start the program, this is what is displayed in the GUI: <br>
   
 ![Screenshot 2023-12-09 163847](https://github.com/nkjain05/CS180-Project-5/assets/142682688/3c41147c-a1c0-4f13-ab93-5bddf2dda1b7) <br>
 To select the option to login, press the login button on the GUI and proceed. <br>
-<p></p>
-After logging in or creating an account, a window with a dropdown will appear. <br>
+
+<p>After logging in or creating an account, a window with a dropdown will appear.</p>
 
   ![image](https://github.com/nkjain05/CS180-Project-5/assets/142682688/603def61-59dd-43de-8582-ec3b3b970bb4) <br>
 Select the appropriate option from the dropdwon to proceed by using the mouse. <br>
-All interactions with the program will be handled this way.
 
 <p>The program will inform you when you need to enter text. Please follow the instructions displayed in the GUI. All typing input will be done through the keyboard. <br>
 Eg., When you wish to search for a product by the name of the selling store, this is what will come up in the GUI. <br>
@@ -22,6 +22,7 @@ Eg., When you wish to search for a product by the name of the selling store, thi
 ![image](https://github.com/nkjain05/CS180-Project-5/assets/142682688/f8f909d5-8692-4c92-a5cf-9554a7e35bca) <br>
 Please enter the EXACT name of the store if you wish to obtain a result. <br>
 Similarly, when removing a product from your cart. <br>
+All interactions with the program will be handled in these ways.
 
 Please select signup as a seller first. If you select login, it will just give you a message that you need to create an account first and end the program. Signup as a seller and follow the intsructions displayed. When you finish creating your account, the seller menu will print and you can interact by entering integers. Create as many products or stores as you would like before testing the customer functionality if you want to see the full results. If you wish to test the customer functionality first, to check that no errors are thrown, you may create a Customer account first.
 After this, you may test anything as you wish and try every possible combination. 
