@@ -10,7 +10,7 @@ Please select one of the following to continue: <br>
 1. Login <br>
 2. Signup <br>
 3. Exit" </i><br>
-To select the option to login, type the number 1 and hit the enter key and the program will proceed. <br>
+To select the option to login, press the login button on the GUI and proceed. <br>
 All interactions with the program will be handled this way.
 
 <p>The program will inform you when you need to enter text. Please follow the instructions displayed in the GUI. <br>
@@ -19,7 +19,7 @@ Eg., When you wish to search for a product by the name of the selling store, thi
 Please enter the EXACT name of the store if you wish to obtain a result. <br>
 Similarly, when removing a product from your cart. <br>
 
-Please select signup as a seller first. If you select login, it will just give you a message that you need to create an account first and end the program. Signup as a seller and follow the intsructions printed in the console. When you finish creating your account, the seller menu will print and you can interact by entering integers. Create as many products or stores as you would like before testing the customer functionality if you want to see the full results. If you wish to test the customer functionality first, to check that no errors are thrown, you may create a Customer account first.
+Please select signup as a seller first. If you select login, it will just give you a message that you need to create an account first and end the program. Signup as a seller and follow the intsructions displayed. When you finish creating your account, the seller menu will print and you can interact by entering integers. Create as many products or stores as you would like before testing the customer functionality if you want to see the full results. If you wish to test the customer functionality first, to check that no errors are thrown, you may create a Customer account first.
 After this, you may test anything as you wish and try every possible combination. 
 
 ## Submissions
