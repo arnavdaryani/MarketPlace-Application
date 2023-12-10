@@ -134,7 +134,7 @@ compare(Product p1, Product p2) - Compares the quantity available of two product
 ### SortByPrice
 This class implements the Comparator interface to sort the arraylist of products. Compares the products in the arraylist products (in marketplace) by price.  This class is connected to the Product class and Marketplace class in order to sort the main arraylist of products. <br>
 <b>Methods</b> - <br>
-compare(Product p1, Product p2) - Compares the quantity available of two products
+compare(Product p1, Product p2) - Compares the price of two products
 
 ## GUI implementation
 This program uses an interactive JOptionPane to dislpay the customer and seller menus and all of the functionality of the program is done through soley the gui. <br>
