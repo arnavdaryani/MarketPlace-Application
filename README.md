@@ -2,7 +2,7 @@
 
 ## Instructions on how to run and compile
 <p> Begin by compiling all the classes. <br>
-<b>The main method of the program is located in the Marketplace class. Run the main method to begin the program.</b> <br>
+<b>The main method of the program is located in the Marketplace and MarketplaceServer classes. Run the MarketplaceServer class and then the Marketplace class to begin the program. If you wish to test the multithreading functionality, you can run the Marketplace class more than once to open as many different windows as you like.</b> <br>
 Interact with the program by entering the integer number of the option you would like to select. <br>
 Eg., When you start the program, this is what is printed in the console: <br>
 <i>"Welcome to the marketplace! <br>
