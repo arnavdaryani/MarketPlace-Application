@@ -1,4 +1,4 @@
-# CS180-Project4
+# CS180-Project5
 
 ## Instructions on how to run and compile
 <p> Begin by compiling all the classes. <br>
@@ -67,9 +67,11 @@ viewPreviousPurchases(Customer customer) - allows the customer to view their pre
 addStoreToSellerFile(String storeName, Seller seller) - add a list of stores to the seller's file <br>
 addProductToStore(String storeName, Scanner sc, Seller seller) - for the seller to add products to a store file and mass list of products for the seller to view
 
-## MarketplaceSever.java
-This class handels all of the processing for the client side, using the methods listed in this README, then sends the information back to the client. <br>
+### MarketplaceSever.java
+This class is responsible for creating the threads each time a new user starts the program then sends information back and forth to the server. 
 
+### ThreadManager.java
+This class handles all of the processing for the client side, using the methods listed in this README, then sends the information back to the client. <br>
 
 ### Customer
 This class represents a customer and contains a number of methods to store and process info. These methods allow the customer to add products to their cart. modify their cart, checkout and view and export their purchase history. This is connected to the ShoppingCart class as each customer has their own shopping cart. Each customer also has a unqiue username, password, and filename <br>
