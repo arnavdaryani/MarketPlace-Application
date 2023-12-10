@@ -3,19 +3,16 @@
 ## Instructions on how to run and compile
 <p> Begin by compiling all the classes. <br>
 <b>The main method of the program is located in the Marketplace and MarketplaceServer classes. Run the MarketplaceServer class and then the Marketplace class to begin the program. If you wish to test the multithreading functionality, you can run the Marketplace class more than once to open as many different windows as you like.</b> <br>
-Interact with the program by entering the integer number of the option you would like to select. <br>
-Eg., When you start the program, this is what is printed in the console: <br>
-<i>"Welcome to the marketplace! <br>
-Please select one of the following to continue: <br>
-1. Login <br>
-2. Signup <br>
-3. Exit" </i><br>
+You should create a new Customer account and a new Seller account to test the different functionalities. <br>
+Interact with the program by selecting the apppropraite option from the dropdown or clicking the appropriate buttons. <br>
+Eg., When you start the program, this is what is displayed in the GUI: <br>
+![Screenshot 2023-12-09 163847](https://github.com/nkjain05/CS180-Project-5/assets/142682688/3c41147c-a1c0-4f13-ab93-5bddf2dda1b7) <br>
 To select the option to login, press the login button on the GUI and proceed. <br>
 All interactions with the program will be handled this way.
 
-<p>The program will inform you when you need to enter text. Please follow the instructions displayed in the GUI. <br>
-Eg., When you wish to search for a product by the name of the selling store, this is what will come up in the GUI <br>
-<i>"What is the EXACT name of the store?"</i><br>
+<p>The program will inform you when you need to enter text. Please follow the instructions displayed in the GUI. All typing input will be done through the keyboard. <br>
+Eg., When you wish to search for a product by the name of the selling store, this is what will come up in the GUI. <br>
+![image](https://github.com/nkjain05/CS180-Project-5/assets/142682688/f8f909d5-8692-4c92-a5cf-9554a7e35bca) <br>
 Please enter the EXACT name of the store if you wish to obtain a result. <br>
 Similarly, when removing a product from your cart. <br>
 
@@ -51,10 +48,16 @@ Option 9 - Exporting products to csv file:  if the seller would like to save pro
 Option 10 - view products currently in each store: the seller will be prompted to enter the store whose products they would like to view, and the program will display the list of products for that store.
 Option 11 - logout and exit: the program will display a thank you message and save all information via files. <br>
 <b>Methods</b> - <br>
-ArrayList<Product> products - Stores all the available products <br>
 login(Scanner sc) - applies the login logic by checking the user's inputted username and password <br>
-checkSellerOrCustomer(Scanner sc) - checks if the user is a seller or customer <br>
 createUser(Scanner sc) - creates a new user and stores their info to the file <i>users.txt</i> <br>
+
+### MarketplaceServer
+This class is responsible for creating the threads each time a new user starts the program then sends information back and forth to the client. This server is hosted on the local computer on a singular port. This allows mu;tiple users to connect to the server and run the program. It is related to the Marketplace and ThreadManager classes.
+
+### ThreadManager
+This class handles all of the processing for the client side, using the methods listed in this README, then sends the information back to the client. Thus, no data is accessed by the client-side, only the server. This allows the use of concurrency and multithreading, allowing ,multiple users to run the program at aonce. It is realted to the MarketplaceServer and Marketplace classes.<br>
+<b>Methods</b> - <br>
+ArrayList<Product> products - Stores all the available products <br>
 saveProductsToFile() - saves the ArrayList of products to the file <i>products.txt</i> <br>
 readFromFile() - reads the stored products ArrayList from the products.txt file <br>
 displayProducts() - displays products from the arraylist products for the user to see <br>
@@ -66,12 +69,6 @@ viewItemPage(String itemName, String store) - Displays the item page with more i
 viewPreviousPurchases(Customer customer) - allows the customer to view their previous purchases <br>
 addStoreToSellerFile(String storeName, Seller seller) - add a list of stores to the seller's file <br>
 addProductToStore(String storeName, Scanner sc, Seller seller) - for the seller to add products to a store file and mass list of products for the seller to view
-
-### MarketplaceSever.java
-This class is responsible for creating the threads each time a new user starts the program then sends information back and forth to the server. 
-
-### ThreadManager.java
-This class handles all of the processing for the client side, using the methods listed in this README, then sends the information back to the client. <br>
 
 ### Customer
 This class represents a customer and contains a number of methods to store and process info. These methods allow the customer to add products to their cart. modify their cart, checkout and view and export their purchase history. This is connected to the ShoppingCart class as each customer has their own shopping cart. Each customer also has a unqiue username, password, and filename <br>
