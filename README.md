@@ -1,4 +1,4 @@
-# CS180-Project5
+# MarketPlace Application
 
 ## Instructions on how to run and compile
 <p> Begin by compiling all the classes. <br>
